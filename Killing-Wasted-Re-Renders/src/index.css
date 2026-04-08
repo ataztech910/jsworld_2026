@@ -1,0 +1,207 @@
+:root {
+  font-family: 'IBM Plex Sans', 'Avenir Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #182135;
+  background: #f2f5fb;
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+}
+
+.app-shell {
+  height: 100dvh;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(38, 108, 255, 0.14), transparent 35%),
+    radial-gradient(circle at 85% 10%, rgba(245, 114, 34, 0.12), transparent 30%),
+    #f2f5fb;
+}
+
+header {
+  margin-bottom: 14px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+header p {
+  margin: 6px 0 0;
+  color: #475069;
+}
+
+.layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.canvas-wrap {
+  min-height: 0;
+  border: 1px solid #c8d0e3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.side-panels {
+  min-height: 0;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.panel-card {
+  border: 1px solid #c8d0e3;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px;
+  box-shadow: 0 6px 24px rgba(30, 51, 88, 0.08);
+}
+
+.panel-card h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.subtle {
+  margin: 0 0 10px;
+  color: #52607f;
+  font-size: 0.9rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-top: 8px;
+}
+
+th,
+td {
+  border: 1px solid #d8deec;
+  padding: 4px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #edf2ff;
+  font-weight: 600;
+}
+
+.summary-table {
+  margin-top: 12px;
+}
+
+button {
+  margin-top: 12px;
+  border: 1px solid #1f4ad1;
+  border-radius: 8px;
+  background: #2f60ff;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2246c0;
+}
+
+.trail {
+  margin-top: 10px;
+}
+
+.trail ul {
+  margin: 6px 0 0;
+  padding-left: 16px;
+}
+
+.trail li {
+  color: #3e4962;
+  margin-bottom: 2px;
+}
+
+.profiled-node {
+  min-width: 132px;
+  border: 2px solid #2d3a57;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 8px 10px;
+}
+
+.node-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.node-meta {
+  color: #53617f;
+  font-size: 0.72rem;
+}
+
+.node-score {
+  margin-top: 4px;
+  color: #1e40af;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+@media (max-width: 1080px) {
+  body {
+    overflow: auto;
+  }
+
+  #root {
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+
+  .canvas-wrap {
+    height: 60vh;
+    min-height: 360px;
+  }
+
+  .side-panels {
+    overflow: visible;
+    padding-right: 0;
+  }
+}

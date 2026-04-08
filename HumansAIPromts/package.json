@@ -1,0 +1,23 @@
+{
+  "name": "humansaipromts",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "tsup src/index.ts --watch",
+    "build": "tsup src/index.ts",
+      "start": "npx tsx src/index.ts",
+      "big": "npx tsx src/index.ts --big",
+      "t1": "npx tsx src/index.ts --tezis=1",
+      "t4": "npx tsx src/index.ts --tezis=4",
+      "t5": "npx tsx src/index.ts --tezis=5"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "@google/generative-ai": "latest",
+    "dotenv": "latest",
+    "ollama": "latest",
+    "openai": "latest",
+    "tsup": "latest",
+    "typescript": "latest"
+  }
+}

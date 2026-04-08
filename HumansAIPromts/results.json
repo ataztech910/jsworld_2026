@@ -1,0 +1,3256 @@
+{
+  "meta": {
+    "date": "2026-04-06T10:27:55.414Z",
+    "total_tezisy": 8
+  },
+  "results": [
+    {
+      "tezis": 4,
+      "name": "YAML is more signal-dense than text",
+      "model": "none",
+      "runs": [
+        {
+          "prompt_type": "text",
+          "complexity": "simple",
+          "decision_count": 3,
+          "word_count": 17,
+          "tokens_prompt": 27,
+          "tokens_completion": 0,
+          "tokens_per_decision": 9,
+          "noise_words": 0,
+          "noise_pct": 0,
+          "ambiguities": 0,
+          "score": 3,
+          "total": 3,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {}
+        },
+        {
+          "prompt_type": "yaml",
+          "complexity": "simple",
+          "decision_count": 3,
+          "word_count": 9,
+          "tokens_prompt": 21,
+          "tokens_completion": 0,
+          "tokens_per_decision": 7,
+          "noise_words": 0,
+          "noise_pct": 0,
+          "ambiguities": 0,
+          "score": 3,
+          "total": 3,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {}
+        }
+      ]
+    },
+    {
+      "tezis": 4,
+      "name": "YAML is more signal-dense than text",
+      "model": "none",
+      "runs": [
+        {
+          "prompt_type": "text",
+          "complexity": "medium",
+          "decision_count": 8,
+          "word_count": 40,
+          "tokens_prompt": 59,
+          "tokens_completion": 0,
+          "tokens_per_decision": 7.4,
+          "noise_words": 0,
+          "noise_pct": 0,
+          "ambiguities": 0,
+          "score": 8,
+          "total": 8,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {}
+        },
+        {
+          "prompt_type": "yaml",
+          "complexity": "medium",
+          "decision_count": 8,
+          "word_count": 17,
+          "tokens_prompt": 41,
+          "tokens_completion": 0,
+          "tokens_per_decision": 5.1,
+          "noise_words": 0,
+          "noise_pct": 0,
+          "ambiguities": 0,
+          "score": 8,
+          "total": 8,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {}
+        }
+      ]
+    },
+    {
+      "tezis": 4,
+      "name": "YAML is more signal-dense than text",
+      "model": "none",
+      "runs": [
+        {
+          "prompt_type": "text",
+          "complexity": "complex",
+          "decision_count": 16,
+          "word_count": 71,
+          "tokens_prompt": 107,
+          "tokens_completion": 0,
+          "tokens_per_decision": 6.7,
+          "noise_words": 0,
+          "noise_pct": 0,
+          "ambiguities": 0,
+          "score": 16,
+          "total": 16,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {}
+        },
+        {
+          "prompt_type": "yaml",
+          "complexity": "complex",
+          "decision_count": 16,
+          "word_count": 44,
+          "tokens_prompt": 113,
+          "tokens_completion": 0,
+          "tokens_per_decision": 7.1,
+          "noise_words": 0,
+          "noise_pct": 0,
+          "ambiguities": 0,
+          "score": 16,
+          "total": 16,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {}
+        }
+      ]
+    },
+    {
+      "tezis": 4,
+      "name": "YAML is more signal-dense than text",
+      "model": "none",
+      "runs": [
+        {
+          "prompt_type": "text",
+          "complexity": "very_complex",
+          "decision_count": 24,
+          "word_count": 107,
+          "tokens_prompt": 184,
+          "tokens_completion": 0,
+          "tokens_per_decision": 7.7,
+          "noise_words": 0,
+          "noise_pct": 0,
+          "ambiguities": 0,
+          "score": 24,
+          "total": 24,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {}
+        },
+        {
+          "prompt_type": "yaml",
+          "complexity": "very_complex",
+          "decision_count": 24,
+          "word_count": 76,
+          "tokens_prompt": 172,
+          "tokens_completion": 0,
+          "tokens_per_decision": 7.2,
+          "noise_words": 0,
+          "noise_pct": 0,
+          "ambiguities": 0,
+          "score": 24,
+          "total": 24,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {}
+        }
+      ]
+    },
+    {
+      "tezis": 4,
+      "name": "YAML is more signal-dense than text",
+      "model": "none",
+      "runs": [
+        {
+          "prompt_type": "text",
+          "complexity": "dashboard_nested",
+          "decision_count": 14,
+          "word_count": 96,
+          "tokens_prompt": 134,
+          "tokens_completion": 0,
+          "tokens_per_decision": 9.6,
+          "noise_words": 37,
+          "noise_pct": 39,
+          "ambiguities": 4,
+          "score": 14,
+          "total": 14,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {}
+        },
+        {
+          "prompt_type": "yaml",
+          "complexity": "dashboard_nested",
+          "decision_count": 14,
+          "word_count": 54,
+          "tokens_prompt": 132,
+          "tokens_completion": 0,
+          "tokens_per_decision": 9.4,
+          "noise_words": 0,
+          "noise_pct": 0,
+          "ambiguities": 0,
+          "score": 14,
+          "total": 14,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {}
+        }
+      ]
+    },
+    {
+      "tezis": 5,
+      "name": "Text degrades in readability as complexity grows",
+      "model": "none",
+      "runs": [
+        {
+          "prompt_type": "text",
+          "complexity": "simple",
+          "decision_count": 3,
+          "tokens_prompt": 27,
+          "tokens_delta": 27,
+          "tokens_per_decision": 9,
+          "score": 3,
+          "total": 3,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {},
+          "tokens_completion": 0
+        },
+        {
+          "prompt_type": "yaml",
+          "complexity": "simple",
+          "decision_count": 3,
+          "tokens_prompt": 21,
+          "tokens_delta": 21,
+          "tokens_per_decision": 7,
+          "score": 3,
+          "total": 3,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {},
+          "tokens_completion": 0
+        }
+      ]
+    },
+    {
+      "tezis": 5,
+      "name": "Text degrades in readability as complexity grows",
+      "model": "none",
+      "runs": [
+        {
+          "prompt_type": "text",
+          "complexity": "medium",
+          "decision_count": 8,
+          "tokens_prompt": 59,
+          "tokens_delta": 32,
+          "tokens_per_decision": 7.4,
+          "score": 8,
+          "total": 8,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {},
+          "tokens_completion": 0
+        },
+        {
+          "prompt_type": "yaml",
+          "complexity": "medium",
+          "decision_count": 8,
+          "tokens_prompt": 41,
+          "tokens_delta": 20,
+          "tokens_per_decision": 5.1,
+          "score": 8,
+          "total": 8,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {},
+          "tokens_completion": 0
+        }
+      ]
+    },
+    {
+      "tezis": 5,
+      "name": "Text degrades in readability as complexity grows",
+      "model": "none",
+      "runs": [
+        {
+          "prompt_type": "text",
+          "complexity": "complex",
+          "decision_count": 16,
+          "tokens_prompt": 107,
+          "tokens_delta": 48,
+          "tokens_per_decision": 6.7,
+          "score": 16,
+          "total": 16,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {},
+          "tokens_completion": 0
+        },
+        {
+          "prompt_type": "yaml",
+          "complexity": "complex",
+          "decision_count": 16,
+          "tokens_prompt": 113,
+          "tokens_delta": 72,
+          "tokens_per_decision": 7.1,
+          "score": 16,
+          "total": 16,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {},
+          "tokens_completion": 0
+        }
+      ]
+    },
+    {
+      "tezis": 5,
+      "name": "Text degrades in readability as complexity grows",
+      "model": "none",
+      "runs": [
+        {
+          "prompt_type": "text",
+          "complexity": "very_complex",
+          "decision_count": 24,
+          "tokens_prompt": 184,
+          "tokens_delta": 77,
+          "tokens_per_decision": 7.7,
+          "score": 24,
+          "total": 24,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {},
+          "tokens_completion": 0
+        },
+        {
+          "prompt_type": "yaml",
+          "complexity": "very_complex",
+          "decision_count": 24,
+          "tokens_prompt": 172,
+          "tokens_delta": 59,
+          "tokens_per_decision": 7.2,
+          "score": 24,
+          "total": 24,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {},
+          "tokens_completion": 0
+        }
+      ]
+    },
+    {
+      "tezis": 5,
+      "name": "Text degrades in readability as complexity grows",
+      "model": "none",
+      "runs": [
+        {
+          "prompt_type": "text",
+          "complexity": "dashboard_nested",
+          "decision_count": 14,
+          "tokens_prompt": 134,
+          "tokens_delta": -50,
+          "tokens_per_decision": 9.6,
+          "score": 14,
+          "total": 14,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {},
+          "tokens_completion": 0
+        },
+        {
+          "prompt_type": "yaml",
+          "complexity": "dashboard_nested",
+          "decision_count": 14,
+          "tokens_prompt": 132,
+          "tokens_delta": -40,
+          "tokens_per_decision": 9.4,
+          "score": 14,
+          "total": 14,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {},
+          "tokens_completion": 0
+        }
+      ]
+    },
+    {
+      "tezis": 1,
+      "name": "Vague prompt hides unknowns",
+      "model": "mistral",
+      "runs": [
+        {
+          "prompt_type": "vague_text",
+          "score": 3,
+          "total": 10,
+          "assumed": 2,
+          "assumedList": [
+            "Save user's progress",
+            "Auto-fill form fields based on user's location"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 141,
+          "tokens_completion": 153
+        },
+        {
+          "prompt_type": "real_yaml",
+          "score": 9,
+          "total": 10,
+          "assumed": 2,
+          "assumedList": [
+            "min_amount is required for every invoice",
+            "discount is only applicable if client tenure is more than 6 months"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "—",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "—",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "—",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 237,
+          "tokens_completion": 277
+        }
+      ]
+    },
+    {
+      "tezis": 1,
+      "name": "Vague prompt hides unknowns",
+      "model": "codeqwen",
+      "runs": [
+        {
+          "prompt_type": "vague_text",
+          "score": 2,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "60",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 141,
+          "tokens_completion": 130
+        },
+        {
+          "prompt_type": "real_yaml",
+          "score": 9,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 237,
+          "tokens_completion": 139
+        }
+      ]
+    },
+    {
+      "tezis": 3,
+      "name": "Spec works on any model",
+      "model": "mistral",
+      "runs": [
+        {
+          "prompt_type": "real_yaml",
+          "score": 9,
+          "total": 10,
+          "assumed": 2,
+          "assumedList": [
+            "min_amount is required for every invoice",
+            "discount is only applicable if client tenure is more than 6 months"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "—",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "—",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "—",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 237,
+          "tokens_completion": 277
+        }
+      ]
+    },
+    {
+      "tezis": 3,
+      "name": "Spec works on any model",
+      "model": "codeqwen",
+      "runs": [
+        {
+          "prompt_type": "real_yaml",
+          "score": 9,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 237,
+          "tokens_completion": 139
+        }
+      ]
+    },
+    {
+      "tezis": 6,
+      "name": "Intermediate layer without domain knowledge is useless",
+      "model": "mistral→codeqwen",
+      "meta": {
+        "generated_spec": " ```yaml\nname: React Invoice Form\ndescription: A React component for creating an invoice form with line items and totals.\ntype: Component\ncomponents:\n  - name: InvoiceForm\n    properties:\n      - name: lineItems\n        type: Array\n        description: An array of LineItem components representing the invoice's line items.\n      - name: total\n        type: Number\n        description: The total amount of the invoice.\n    methods:\n      - name: addLineItem\n        parameters:\n          - name: item\n            type: LineItem\n        description: Adds a new line item to the invoice.\n      - name: calculateTotal\n        parameters: []\n        description: Calculates and sets the total amount of the invoice based on the line items.\n    children:\n      - name: LineItem\n        properties:\n          - name: label\n            type: String\n            description: The label for the line item.\n          - name: quantity\n            type: Number\n            description: The quantity of the line item.\n          - name: price\n            type: Number\n            description: The price per unit of the line item.\n      - name: TotalAmount\n        properties: []\n        description: A display for the total amount of the invoice.\n```"
+      },
+      "runs": [
+        {
+          "prompt_type": "vague_direct",
+          "description": "vague text → codeqwen",
+          "score": 2,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "60",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 141,
+          "tokens_completion": 130
+        },
+        {
+          "prompt_type": "vague_via_yaml",
+          "description": "vague → mistral YAML → codeqwen",
+          "score": 0,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 447,
+          "tokens_completion": 502
+        }
+      ]
+    },
+    {
+      "tezis": 7,
+      "name": "LLM understands YAML by context not exact key names",
+      "model": "mistral",
+      "runs": [
+        {
+          "prompt_type": "canonical_keys",
+          "score": 9,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "—",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "—",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 228,
+          "tokens_completion": 212
+        },
+        {
+          "prompt_type": "renamed_keys",
+          "score": 9,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 228,
+          "tokens_completion": 140
+        },
+        {
+          "prompt_type": "weird_keys",
+          "score": 9,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 174,
+          "tokens_completion": 139
+        }
+      ]
+    },
+    {
+      "tezis": 7,
+      "name": "LLM understands YAML by context not exact key names",
+      "model": "codeqwen",
+      "runs": [
+        {
+          "prompt_type": "canonical_keys",
+          "score": 9,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 228,
+          "tokens_completion": 139
+        },
+        {
+          "prompt_type": "renamed_keys",
+          "score": 8,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 228,
+          "tokens_completion": 139
+        },
+        {
+          "prompt_type": "weird_keys",
+          "score": 10,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 174,
+          "tokens_completion": 140
+        }
+      ]
+    },
+    {
+      "tezis": 8,
+      "name": "YAML + text annotations beats pure YAML",
+      "model": "mistral",
+      "runs": [
+        {
+          "prompt_type": "pure_yaml",
+          "score": 9,
+          "total": 10,
+          "assumed": 10,
+          "assumedList": [
+            "min_amount_eur_is_in_euro",
+            "max_line_items_is_an_integer",
+            "discount_condition_is_boolean",
+            "vat_eu_pct_is_a_percentage",
+            "vat_non_eu_pct_is_a_percentage",
+            "vat_blocked_is_array_of_country_codes",
+            "retry_network_only_is_boolean",
+            "analytics_not_ga_is_boolean",
+            "autosave_seconds_is_an_integer",
+            "confirm_on_close_is_boolean"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "—",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "—",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 228,
+          "tokens_completion": 353
+        },
+        {
+          "prompt_type": "yaml_plus_text",
+          "score": 9,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 357,
+          "tokens_completion": 142
+        }
+      ]
+    },
+    {
+      "tezis": 8,
+      "name": "YAML + text annotations beats pure YAML",
+      "model": "codeqwen",
+      "runs": [
+        {
+          "prompt_type": "pure_yaml",
+          "score": 9,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 228,
+          "tokens_completion": 139
+        },
+        {
+          "prompt_type": "yaml_plus_text",
+          "score": 9,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 357,
+          "tokens_completion": 139
+        }
+      ]
+    },
+    {
+      "tezis": 2,
+      "name": "Big models hide the problem",
+      "model": "mistral",
+      "model_type": "small",
+      "runs": [
+        {
+          "prompt_type": "vague_text",
+          "score": 3,
+          "total": 10,
+          "assumed": 2,
+          "assumedList": [
+            "Save user data automatically every X seconds",
+            "Show a confirmation dialog when the form is closed"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 141,
+          "tokens_completion": 153
+        }
+      ]
+    },
+    {
+      "tezis": 2,
+      "name": "Big models hide the problem",
+      "model": "codeqwen",
+      "model_type": "small",
+      "runs": [
+        {
+          "prompt_type": "vague_text",
+          "score": 2,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "60",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 141,
+          "tokens_completion": 130
+        }
+      ]
+    },
+    {
+      "tezis": 2,
+      "name": "Big models hide the problem",
+      "model": "gemini-flash",
+      "model_type": "big",
+      "runs": [
+        {
+          "prompt_type": "vague_text",
+          "score": 4,
+          "total": 10,
+          "assumed": 6,
+          "assumedList": [
+            "Dynamic addition and removal of line items",
+            "Automatic calculation of subtotal, VAT, and grand total",
+            "Input fields for item description, quantity, and unit price for each line item",
+            "Client-side validation for numerical inputs (e.g., quantity, price)",
+            "No explicit backend integration (form is client-side focused)",
+            "No customer or invoice metadata fields (e.g., invoice number, date, customer name) beyond line items and totals"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "0",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "50",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "21",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 159,
+          "tokens_completion": 192
+        }
+      ]
+    },
+    {
+      "tezis": 2,
+      "name": "Big models hide the problem",
+      "model": "claude-sonnet",
+      "model_type": "big",
+      "runs": [
+        {
+          "prompt_type": "vague_text",
+          "score": 0,
+          "total": 10,
+          "assumed": 10,
+          "assumedList": [
+            "min_amount",
+            "max_line_items",
+            "discount_months",
+            "vat_eu_pct",
+            "vat_non_eu_pct",
+            "vat_blocked",
+            "retry_network_only",
+            "analytics_not_ga",
+            "autosave_seconds",
+            "confirm_on_close"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 174,
+          "tokens_completion": 193
+        }
+      ]
+    },
+    {
+      "tezis": 3,
+      "name": "Spec works on any model",
+      "model": "gemini-flash",
+      "runs": [
+        {
+          "prompt_type": "real_yaml",
+          "score": 10,
+          "total": 10,
+          "assumed": 4,
+          "assumedList": [
+            "min_amount key refers to min_amount_eur from input, dropping the _eur suffix",
+            "discount_months refers to the minimum client_tenure_months required for the discount",
+            "retry_network_only: true means payment retries are exclusively for network errors, based on retry_on: [network_error] and no_retry_on: [validation_error]",
+            "confirm_on_close key refers to confirm_unsaved_on_close from input, simplifying the key name"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 303,
+          "tokens_completion": 209
+        }
+      ]
+    },
+    {
+      "tezis": 3,
+      "name": "Spec works on any model",
+      "model": "claude-sonnet",
+      "runs": [
+        {
+          "prompt_type": "real_yaml",
+          "score": 10,
+          "total": 10,
+          "assumed": 5,
+          "assumedList": [
+            "currency is EUR",
+            "discount applies when client tenure >= 6 months",
+            "network_error includes connection failures",
+            "validation_error includes form validation failures",
+            "internal analytics means no third-party tracking"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 318,
+          "tokens_completion": 177
+        }
+      ]
+    },
+    {
+      "tezis": 6,
+      "name": "Intermediate layer without domain knowledge is useless",
+      "model": "mistral→codeqwen",
+      "meta": {
+        "generated_spec": " ```yaml\nproject: Invoice Form (React)\ndescription: A React component for creating an invoice form with line items and totals.\n\ncomponents:\n  InvoiceForm:\n    type: Functional Component\n    props:\n      onSubmit:\n        type: Function\n        description: Callback function to handle form submission.\n      invoiceData:\n        type: Object\n        description: Initial data for the invoice, including line items and totals.\n        properties:\n          clientName:\n            type: String\n       "
+      },
+      "runs": [
+        {
+          "prompt_type": "vague_direct",
+          "description": "vague → codeqwen",
+          "score": 1,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "60",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 141,
+          "tokens_completion": 130
+        },
+        {
+          "prompt_type": "vague_via_yaml",
+          "description": "vague → mistral YAML → codeqwen",
+          "score": 0,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 585,
+          "tokens_completion": 614
+        }
+      ]
+    },
+    {
+      "tezis": 6,
+      "name": "Intermediate layer without domain knowledge is useless",
+      "model": "mistral→codeqwen",
+      "meta": {
+        "generated_spec": " ```yaml\nproject: Invoice Form (React)\ndescription: A React component for building an invoice form with line items and totals.\n\ncomponents:\n  InvoiceForm:\n    type: functional\n    props:\n      onSubmit:\n        type: function\n        description: Callback function to handle form submission.\n      lineItems:\n        type: array\n        description: Array of line item objects for the invoice. Each object should contain 'description', 'quantity', and 'price' properties.\n    children:\n      - LineIt"
+      },
+      "runs": [
+        {
+          "prompt_type": "vague_direct",
+          "description": "vague → codeqwen",
+          "score": 1,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "60",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 141,
+          "tokens_completion": 130
+        },
+        {
+          "prompt_type": "vague_via_yaml",
+          "description": "vague → mistral YAML → codeqwen",
+          "score": 0,
+          "total": 10,
+          "assumed": 11,
+          "assumedList": [
+            "min_amount: integer or null",
+            "max_line_items: integer or null",
+            "discount_months: integer or null",
+            "vat_eu_pct: integer or null",
+            "vat_non_eu_pct: integer or null",
+            "vat_blocked: array of country codes or null",
+            "retry_network_only: true/false",
+            "analytics_not_ga: true/false",
+            "autosave_seconds: integer or null",
+            "confirm_on_close: true/false",
+            "assumed: array of strings — decisions NOT explicitly stated in the input"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 632,
+          "tokens_completion": 905
+        }
+      ]
+    },
+    {
+      "tezis": 6,
+      "name": "Intermediate layer without domain knowledge is useless",
+      "model": "gemini-flash→codeqwen",
+      "meta": {
+        "generated_spec": "feature_name: \"React Invoice Form\"\ndescription: \"A web-based form built with React for creating, editing, and managing invoices, including dynamic line items and real-time total calculations.\"\ntechnologies:\n  - \"React.js\"\n  - \"HTML5\"\n  - \"CSS3\"\n  - \"JavaScript (ES6+)\"\n\ncomponents:\n  - name: \"InvoiceFormContainer\"\n    description: \"The main component orchestrating the invoice creation/editing process.\"\n    sections:\n      - \"InvoiceHeader\": \"Displays invoice number, date, due date, and status.\"\n "
+      },
+      "runs": [
+        {
+          "prompt_type": "vague_direct",
+          "description": "vague → codeqwen",
+          "score": 1,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "60",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 141,
+          "tokens_completion": 130
+        },
+        {
+          "prompt_type": "vague_via_yaml",
+          "description": "vague → gemini-flash YAML → codeqwen",
+          "score": 2,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "60",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 1149,
+          "tokens_completion": 130
+        }
+      ]
+    },
+    {
+      "tezis": 6,
+      "name": "Intermediate layer without domain knowledge is useless",
+      "model": "claude-sonnet→codeqwen",
+      "meta": {
+        "generated_spec": "name: React Invoice Form\ndescription: A React component for creating invoices with line items and automatic total calculations\nversion: 1.0.0\n\ncomponents:\n  InvoiceForm:\n    type: React.Component\n    props:\n      onSubmit:\n        type: function\n        required: true\n        description: Callback function when form is submitted\n      initialData:\n        type: object\n        required: false\n        description: Initial invoice data for editing\n    state:\n      invoice:\n        type: object\n    "
+      },
+      "runs": [
+        {
+          "prompt_type": "vague_direct",
+          "description": "vague → codeqwen",
+          "score": 1,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "60",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "false",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 141,
+          "tokens_completion": 130
+        },
+        {
+          "prompt_type": "vague_via_yaml",
+          "description": "vague → claude-sonnet YAML → codeqwen",
+          "score": 0,
+          "total": 10,
+          "assumed": 0,
+          "assumedList": [],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "—",
+              "correct": false
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "—",
+              "correct": false
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "—",
+              "correct": false
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "—",
+              "correct": false
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "—",
+              "correct": false
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "—",
+              "correct": false
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "—",
+              "correct": false
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "—",
+              "correct": false
+            }
+          },
+          "tokens_prompt": 1306,
+          "tokens_completion": 2073
+        }
+      ]
+    },
+    {
+      "tezis": 7,
+      "name": "LLM understands YAML by context not exact key names",
+      "model": "gemini-flash",
+      "runs": [
+        {
+          "prompt_type": "canonical_keys",
+          "score": 10,
+          "total": 10,
+          "assumed": 2,
+          "assumedList": [
+            "The component is built using the React framework.",
+            "The `min_amount` value is in EUR."
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 294,
+          "tokens_completion": 126
+        },
+        {
+          "prompt_type": "renamed_keys",
+          "score": 10,
+          "total": 10,
+          "assumed": 3,
+          "assumedList": [
+            "discount_months refers to the minimum account age for price reduction.",
+            "retry_network_only is true because only connection_failure is allowed and bad_input is blocked.",
+            "analytics_not_ga is true because tracking destination is own_system and google_analytics is excluded."
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 292,
+          "tokens_completion": 162
+        },
+        {
+          "prompt_type": "weird_keys",
+          "score": 10,
+          "total": 10,
+          "assumed": 2,
+          "assumedList": [
+            "'vat_in' refers to VAT percentage for EU transactions ('vat_eu_pct')",
+            "'vat_out' refers to VAT percentage for non-EU transactions ('vat_non_eu_pct')"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 235,
+          "tokens_completion": 147
+        }
+      ]
+    },
+    {
+      "tezis": 7,
+      "name": "LLM understands YAML by context not exact key names",
+      "model": "claude-sonnet",
+      "runs": [
+        {
+          "prompt_type": "canonical_keys",
+          "score": 10,
+          "total": 10,
+          "assumed": 5,
+          "assumedList": [
+            "minimum amount currency is EUR",
+            "client tenure measured in months",
+            "network_error is the only retryable error type",
+            "validation_error represents non-retryable errors",
+            "internal analytics provider excludes Google Analytics"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 309,
+          "tokens_completion": 181
+        },
+        {
+          "prompt_type": "renamed_keys",
+          "score": 10,
+          "total": 10,
+          "assumed": 4,
+          "assumedList": [
+            "currency is EUR",
+            "floor_eur applies as minimum amount",
+            "connection_failure is network-related",
+            "own_system means not Google Analytics"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 306,
+          "tokens_completion": 166
+        },
+        {
+          "prompt_type": "weird_keys",
+          "score": 10,
+          "total": 10,
+          "assumed": 5,
+          "assumedList": [
+            "vat_in refers to EU VAT percentage",
+            "vat_out refers to non-EU VAT percentage",
+            "net_retry_only means only retry network operations",
+            "no_ga means analytics but not Google Analytics",
+            "save_s is autosave interval in seconds"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 250,
+          "tokens_completion": 194
+        }
+      ]
+    },
+    {
+      "tezis": 8,
+      "name": "YAML + text annotations beats pure YAML",
+      "model": "gemini-flash",
+      "runs": [
+        {
+          "prompt_type": "pure_yaml",
+          "score": 10,
+          "total": 10,
+          "assumed": 5,
+          "assumedList": [
+            "Line items include fields for description, quantity, and unit price.",
+            "Client details (name, address, country) are part of the form.",
+            "Client tenure in months is an input field or derived from a client creation date.",
+            "The form will display calculated totals including VAT and discount.",
+            "The form will have a submit button to finalize the invoice."
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 294,
+          "tokens_completion": 176
+        },
+        {
+          "prompt_type": "yaml_plus_text",
+          "score": 10,
+          "total": 10,
+          "assumed": 4,
+          "assumedList": [
+            "The primary currency for the min_amount constraint is EUR.",
+            "For VAT blocked countries (RU, BY), the entire InvoiceForm component should not be rendered.",
+            "The specific value or type of the loyalty discount is not defined, only its application condition.",
+            "Payment retry logic applies to the final submission of the invoice data."
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 411,
+          "tokens_completion": 170
+        }
+      ]
+    },
+    {
+      "tezis": 8,
+      "name": "YAML + text annotations beats pure YAML",
+      "model": "claude-sonnet",
+      "runs": [
+        {
+          "prompt_type": "pure_yaml",
+          "score": 10,
+          "total": 10,
+          "assumed": 5,
+          "assumedList": [
+            "minimum amount currency is EUR",
+            "client tenure measured in months",
+            "network_error is the only retryable error type",
+            "validation_error represents non-retryable errors",
+            "internal analytics provider excludes Google Analytics"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 309,
+          "tokens_completion": 181
+        },
+        {
+          "prompt_type": "yaml_plus_text",
+          "score": 10,
+          "total": 10,
+          "assumed": 7,
+          "assumedList": [
+            "currency is EUR",
+            "min_amount applies in EUR",
+            "discount is binary eligible/not eligible",
+            "form should not render at all for blocked countries",
+            "network_error and validation_error are the main error types",
+            "autosave applies to form data",
+            "confirm_on_close prevents accidental data loss"
+          ],
+          "decisions": {
+            "min_amount": {
+              "expected": "50",
+              "got": "50",
+              "correct": true
+            },
+            "max_line_items": {
+              "expected": "10",
+              "got": "10",
+              "correct": true
+            },
+            "discount_months": {
+              "expected": "6",
+              "got": "6",
+              "correct": true
+            },
+            "vat_eu_pct": {
+              "expected": "20",
+              "got": "20",
+              "correct": true
+            },
+            "vat_non_eu_pct": {
+              "expected": "0",
+              "got": "0",
+              "correct": true
+            },
+            "vat_blocked": {
+              "expected": "RU+BY",
+              "got": "RU,BY",
+              "correct": true
+            },
+            "retry_network_only": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "analytics_not_ga": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            },
+            "autosave_seconds": {
+              "expected": "30",
+              "got": "30",
+              "correct": true
+            },
+            "confirm_on_close": {
+              "expected": "true",
+              "got": "true",
+              "correct": true
+            }
+          },
+          "tokens_prompt": 435,
+          "tokens_completion": 201
+        }
+      ]
+    }
+  ]
+}
