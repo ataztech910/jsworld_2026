@@ -50,6 +50,34 @@ header p {
   color: #475069;
 }
 
+.mode-switch {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.mode-switch span {
+  font-size: 0.88rem;
+  color: #2b3550;
+}
+
+.mode-button {
+  margin-top: 0;
+  background: #ffffff;
+  color: #1f4ad1;
+}
+
+.mode-button.active {
+  background: #2f60ff;
+  color: #ffffff;
+}
+
+.mode-note {
+  margin-left: 4px;
+}
+
 .layout {
   flex: 1;
   min-height: 0;
@@ -132,6 +160,61 @@ button {
 
 button:hover {
   background: #2246c0;
+}
+
+.mode-button:hover {
+  background: #e9efff;
+}
+
+.mode-button.active:hover {
+  background: #2246c0;
+}
+
+.comparison-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.test-state {
+  margin: 0 0 8px;
+  padding: 6px 8px;
+  border: 1px solid #c9d4ef;
+  border-radius: 8px;
+  background: #edf2ff;
+  color: #24314f;
+  font-size: 0.86rem;
+}
+
+.workflow-list {
+  margin: 8px 0 10px;
+  padding-left: 18px;
+}
+
+.workflow-list li {
+  color: #465270;
+  margin-bottom: 3px;
+}
+
+.workflow-list li.done {
+  color: #146c2e;
+  font-weight: 600;
+}
+
+.workflow-list li.in-progress {
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.warning {
+  margin: 0 0 10px;
+  padding: 8px;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 0.84rem;
 }
 
 .trail {

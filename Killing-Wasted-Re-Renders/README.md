@@ -94,6 +94,55 @@ Signals that justify building Babel/plugin-level instrumentation next:
 - callbacks changing identity frequently enough to propagate extra renders
 - clear interaction-specific patterns that manual logs can identify, but are tedious to track by hand across larger codebases
 
+## Switchable manual fix (Problematic vs Fixed)
+
+The demo now has a mode switch:
+
+- `Problematic mode`: keeps the current behavior that recreates `node.data.liveHint` objects for every node on frequent updates.
+- `Fixed mode`: applies a narrow manual fix with structural sharing.
+  - Reuses previous runtime node objects when source node + semantic liveHint values are unchanged.
+  - Updates `node.data.liveHint` only where semantic values actually changed.
+  - During drag, updates drag pulse for the actively dragged node instead of re-writing all node data objects.
+
+Why this fix was chosen:
+
+- diagnostics identified node rerenders driven mostly by `data` object reference churn
+- effects/memos tied to `data` were rerunning because object dependencies changed
+- this is a single, explainable implementation detail change while tracker + interactions stay identical
+
+Fix implementation is intentionally isolated in:
+
+- `src/runtimeNodeStabilization.ts`
+
+## How to run the comparison
+
+1. Select `Problematic mode`
+2. Click **Reset counters**
+3. Run the same interaction script (`SELECT_NODE` -> `DRAG_NODE` for 2-4s -> `PAN_CANVAS` for 2-4s)
+4. Click `Snapshot current mode`
+5. Switch to `Fixed mode`
+6. Click **Reset counters**
+7. Run the exact same interaction script
+8. Click `Snapshot current mode` again
+9. Inspect the `Problematic vs Fixed comparison` section
+
+## Metrics to watch in comparison
+
+- total renders / effects / memos
+- top rerendered component
+- most frequently changing props (especially reference-only churn)
+- most unstable memos/callbacks
+- likely cause summary first line in each mode
+
+## What would justify building a Babel plugin later
+
+Move to Babel/plugin automation if this manual switch shows a clear and repeatable drop in wasted work while keeping behavior and interaction flow intact, especially when:
+
+- render/effect/memo totals drop materially in Fixed mode
+- node-level reference churn is no longer the dominant cause
+- likely-cause diagnostics become cleaner and more specific after one targeted fix
+- the manual instrumentation already explains the storm, but scaling this visibility by hand is impractical
+
 ## Why churn appears here (intentionally, but realistically)
 
 The code includes plausible patterns that commonly appear in real apps:

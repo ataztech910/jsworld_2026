@@ -35,6 +35,11 @@ import {
   useTrackedEffect,
   useTrackedMemo,
 } from './diagnostics'
+import {
+  buildFixedRuntimeNodes,
+  buildProblematicRuntimeNodes,
+  type RuntimeNodeCacheEntry,
+} from './runtimeNodeStabilization'
 
 type FlowNodeData = {
   label: string
@@ -49,6 +54,14 @@ type FlowNodeData = {
 }
 
 type FlowNode = Node<FlowNodeData, 'profiled'>
+type DemoMode = 'problematic' | 'fixed'
+type ResetReason = 'manual' | 'mode-switch'
+type ModeEntryResetVersion = Record<DemoMode, number>
+
+const modeLabels: Record<DemoMode, string> = {
+  problematic: 'Problematic mode',
+  fixed: 'Fixed mode',
+}
 
 const owners = ['Payments', 'Orders', 'Checkout', 'Identity', 'Catalog', 'Data']
 const tagPool = ['cpu', 'latency', 'cache', 'io', 'state', 'edge', 'queue']
@@ -139,6 +152,27 @@ const formatDependencySummary = (hook: HookDiagnosticSnapshot): string => {
     .slice(0, 3)
     .map((dep) => `dep[${dep.index}] ${dep.valueKind} x${dep.count}`)
     .join(', ')
+}
+
+const sumInteractionMetric = (
+  snapshot: TrackerSnapshot,
+  metric: 'renders' | 'effects' | 'memos',
+): number => {
+  return interactionList.reduce((sum, interaction) => {
+    return sum + snapshot.interactions[interaction][metric]
+  }, 0)
+}
+
+const topRerenderLabel = (snapshot: TrackerSnapshot): string => {
+  const topComponent = Object.values(snapshot.diagnostics.renders).sort(
+    (a, b) => b.renders - a.renders,
+  )[0]
+
+  if (!topComponent) {
+    return 'n/a'
+  }
+
+  return `${componentLabels[topComponent.component]} (${topComponent.renders})`
 }
 
 const buildLikelyCauses = (
@@ -332,8 +366,38 @@ const DetailsPanel = ({ selectedNode, viewport, dragSample, hotNodeIds }: Detail
   )
 }
 
-const DebugPanel = () => {
+type DebugPanelProps = {
+  mode: DemoMode
+  resetVersion: number
+  lastResetReason: ResetReason
+  modeSwitchCount: number
+  modeEntryResetVersion: ModeEntryResetVersion
+  onRequestReset: () => void
+}
+
+type CapturedModeSnapshot = {
+  mode: DemoMode
+  capturedAt: string
+  resetVersion: number
+  modeSwitchCount: number
+  snapshot: TrackerSnapshot
+}
+
+const DebugPanel = ({
+  mode,
+  resetVersion,
+  lastResetReason,
+  modeSwitchCount,
+  modeEntryResetVersion,
+  onRequestReset,
+}: DebugPanelProps) => {
   const [snapshot, setSnapshot] = useState<TrackerSnapshot>(() => getTrackerSnapshot())
+  const [capturedByMode, setCapturedByMode] = useState<
+    Partial<Record<DemoMode, CapturedModeSnapshot>>
+  >({})
+  const [testState, setTestState] = useState<
+    'counters reset' | 'ready to run' | 'results captured'
+  >('counters reset')
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -345,9 +409,42 @@ const DebugPanel = () => {
     }
   }, [])
 
-  const resetAll = () => {
-    resetTracker()
+  useEffect(() => {
     setSnapshot(getTrackerSnapshot())
+    setTestState('counters reset')
+  }, [resetVersion])
+
+  const resetAll = () => {
+    onRequestReset()
+    setSnapshot(getTrackerSnapshot())
+    setTestState('counters reset')
+  }
+
+  const captureCurrentMode = () => {
+    const capturedSnapshot = getTrackerSnapshot()
+
+    setCapturedByMode((current) => ({
+      ...current,
+      [mode]: {
+        mode,
+        capturedAt: new Date().toLocaleTimeString('en-US', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }),
+        resetVersion,
+        modeSwitchCount,
+        snapshot: capturedSnapshot,
+      },
+    }))
+
+    setTestState('results captured')
+  }
+
+  const clearCaptured = () => {
+    setCapturedByMode({})
+    setTestState('counters reset')
   }
 
   const topRenderComponents = Object.values(snapshot.diagnostics.renders)
@@ -374,7 +471,59 @@ const DebugPanel = () => {
     .sort((a, b) => b.changes - a.changes)
     .slice(0, 8)
 
+  const totalActivitySinceReset =
+    sumInteractionMetric(snapshot, 'renders') +
+    sumInteractionMetric(snapshot, 'effects') +
+    sumInteractionMetric(snapshot, 'memos')
+  const hasRunSinceReset = totalActivitySinceReset > 0
+  const currentModeCapture = capturedByMode[mode]
+  const capturedCurrentModeActivity =
+    currentModeCapture && currentModeCapture.resetVersion === resetVersion
+      ? sumInteractionMetric(currentModeCapture.snapshot, 'renders') +
+        sumInteractionMetric(currentModeCapture.snapshot, 'effects') +
+        sumInteractionMetric(currentModeCapture.snapshot, 'memos')
+      : -1
+  const capturedCurrentMode = Boolean(
+    currentModeCapture?.resetVersion === resetVersion &&
+      capturedCurrentModeActivity === totalActivitySinceReset,
+  )
+
+  useEffect(() => {
+    if (testState === 'results captured') {
+      if (!capturedCurrentMode) {
+        setTestState(hasRunSinceReset ? 'ready to run' : 'counters reset')
+      }
+      return
+    }
+
+    if (hasRunSinceReset) {
+      setTestState('ready to run')
+    }
+  }, [capturedCurrentMode, hasRunSinceReset, testState])
+
   const likelyCauses = buildLikelyCauses(snapshot.diagnostics.hooks, snapshot.diagnostics.props)
+  const capturedProblematic = capturedByMode.problematic
+  const capturedFixed = capturedByMode.fixed
+  const validProblematic =
+    capturedProblematic &&
+    capturedProblematic.resetVersion >= modeEntryResetVersion.problematic
+      ? capturedProblematic
+      : undefined
+  const validFixed =
+    capturedFixed && capturedFixed.resetVersion >= modeEntryResetVersion.fixed
+      ? capturedFixed
+      : undefined
+  const staleProblematic = Boolean(capturedProblematic && !validProblematic)
+  const staleFixed = Boolean(capturedFixed && !validFixed)
+  const comparisonWarning =
+    Boolean(capturedProblematic && capturedFixed) && (staleProblematic || staleFixed)
+  const comparisonPair =
+    validProblematic && validFixed
+      ? {
+          problematic: validProblematic,
+          fixed: validFixed,
+        }
+      : null
 
   return (
     <section className="panel-card">
@@ -382,6 +531,12 @@ const DebugPanel = () => {
       <p className="subtle">
         Active interaction:{' '}
         <strong>{snapshot.active ? interactionLabels[snapshot.active.type] : 'none'}</strong>
+      </p>
+      <p className="test-state">
+        Test state: <strong>{testState}</strong>
+      </p>
+      <p className="subtle">
+        Last reset: <strong>{lastResetReason === 'mode-switch' ? 'auto (mode switch)' : 'manual'}</strong>
       </p>
 
       <table>
@@ -566,6 +721,115 @@ const DebugPanel = () => {
         ))}
       </ul>
 
+      <h2>Problematic vs Fixed comparison</h2>
+      <p className="subtle">
+        Capture results for each mode after running the same interaction sequence.
+      </p>
+      <ol className="workflow-list">
+        <li className={resetVersion > 0 ? 'done' : ''}>Reset</li>
+        <li className={hasRunSinceReset ? 'done' : ''}>Run isolated test</li>
+        <li className={capturedCurrentMode ? 'done' : ''}>Capture current mode</li>
+        <li className={modeSwitchCount > 0 ? 'done' : ''}>Switch mode</li>
+        <li className={lastResetReason === 'mode-switch' ? 'done' : ''}>Auto-reset</li>
+        <li
+          className={
+            validProblematic && validFixed
+              ? 'done'
+              : validProblematic || validFixed
+                ? 'in-progress'
+                : ''
+          }
+        >
+          Run same test in second mode
+        </li>
+        <li className={comparisonPair ? 'done' : ''}>Capture second mode</li>
+      </ol>
+      <div className="comparison-actions">
+        <button type="button" onClick={captureCurrentMode}>
+          Snapshot current mode ({modeLabels[mode]})
+        </button>
+        <button type="button" onClick={clearCaptured}>
+          Clear snapshots
+        </button>
+      </div>
+      {comparisonWarning ? (
+        <p className="warning">
+          Comparison warning: one snapshot is stale after mode change. Switch to that mode, auto-reset will run, then rerun and capture again.
+        </p>
+      ) : null}
+
+      {comparisonPair ? (
+        <>
+          <table>
+            <thead>
+              <tr>
+                <th>metric</th>
+                <th>{modeLabels.problematic}</th>
+                <th>{modeLabels.fixed}</th>
+                <th>delta (fixed - problematic)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>total renders</th>
+                <td>{sumInteractionMetric(comparisonPair.problematic.snapshot, 'renders')}</td>
+                <td>{sumInteractionMetric(comparisonPair.fixed.snapshot, 'renders')}</td>
+                <td>
+                  {sumInteractionMetric(comparisonPair.fixed.snapshot, 'renders') -
+                    sumInteractionMetric(comparisonPair.problematic.snapshot, 'renders')}
+                </td>
+              </tr>
+              <tr>
+                <th>total effects</th>
+                <td>{sumInteractionMetric(comparisonPair.problematic.snapshot, 'effects')}</td>
+                <td>{sumInteractionMetric(comparisonPair.fixed.snapshot, 'effects')}</td>
+                <td>
+                  {sumInteractionMetric(comparisonPair.fixed.snapshot, 'effects') -
+                    sumInteractionMetric(comparisonPair.problematic.snapshot, 'effects')}
+                </td>
+              </tr>
+              <tr>
+                <th>total memos</th>
+                <td>{sumInteractionMetric(comparisonPair.problematic.snapshot, 'memos')}</td>
+                <td>{sumInteractionMetric(comparisonPair.fixed.snapshot, 'memos')}</td>
+                <td>
+                  {sumInteractionMetric(comparisonPair.fixed.snapshot, 'memos') -
+                    sumInteractionMetric(comparisonPair.problematic.snapshot, 'memos')}
+                </td>
+              </tr>
+              <tr>
+                <th>top rerendered component</th>
+                <td>{topRerenderLabel(comparisonPair.problematic.snapshot)}</td>
+                <td>{topRerenderLabel(comparisonPair.fixed.snapshot)}</td>
+                <td>n/a</td>
+              </tr>
+              <tr>
+                <th>captured at</th>
+                <td>{comparisonPair.problematic.capturedAt}</td>
+                <td>{comparisonPair.fixed.capturedAt}</td>
+                <td>n/a</td>
+              </tr>
+            </tbody>
+          </table>
+          <p className="subtle">
+            {modeLabels.problematic}: {buildLikelyCauses(
+              comparisonPair.problematic.snapshot.diagnostics.hooks,
+              comparisonPair.problematic.snapshot.diagnostics.props,
+            )[0]}
+          </p>
+          <p className="subtle">
+            {modeLabels.fixed}: {buildLikelyCauses(
+              comparisonPair.fixed.snapshot.diagnostics.hooks,
+              comparisonPair.fixed.snapshot.diagnostics.props,
+            )[0]}
+          </p>
+        </>
+      ) : (
+        <p className="subtle">
+          Need two snapshots to compare: one from Problematic mode and one from Fixed mode.
+        </p>
+      )}
+
       <button type="button" onClick={resetAll}>
         Reset counters
       </button>
@@ -577,34 +841,74 @@ const DebugPanel = () => {
 function App() {
   const [nodes, , onNodesChange] = useNodesState<FlowNode>(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+  const [mode, setMode] = useState<DemoMode>('problematic')
+  const [resetVersion, setResetVersion] = useState(0)
+  const [lastResetReason, setLastResetReason] = useState<ResetReason>('manual')
+  const [modeSwitchCount, setModeSwitchCount] = useState(0)
+  const [modeEntryResetVersion, setModeEntryResetVersion] = useState<ModeEntryResetVersion>({
+    problematic: 0,
+    fixed: -1,
+  })
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [viewport, setViewport] = useState<Viewport>({ x: 0, y: 0, zoom: 1 })
   const [dragSample, setDragSample] = useState({ nodeId: 'none', x: 0, y: 0, tick: 0 })
 
+  const resetVersionRef = useRef(0)
   const selectTimeout = useRef<number | null>(null)
+  const runtimeNodeCacheRef = useRef<Map<string, RuntimeNodeCacheEntry<FlowNode>>>(new Map())
+  const runtimeNodesSelectionDependency =
+    mode === 'problematic' ? selectedNodeId : 'fixed-selection-ignored'
+
+  const performReset = (reason: ResetReason, targetMode: DemoMode) => {
+    resetTracker()
+
+    const nextResetVersion = resetVersionRef.current + 1
+    resetVersionRef.current = nextResetVersion
+    setResetVersion(nextResetVersion)
+    setLastResetReason(reason)
+
+    if (reason === 'mode-switch') {
+      setModeEntryResetVersion((current) => ({
+        ...current,
+        [targetMode]: nextResetVersion,
+      }))
+    }
+  }
+
+  const handleModeChange = (nextMode: DemoMode) => {
+    if (nextMode === mode) {
+      return
+    }
+
+    setMode(nextMode)
+    setModeSwitchCount((current) => current + 1)
+    performReset('mode-switch', nextMode)
+  }
 
   const runtimeNodes = useTrackedMemo(
     'APP_ROOT',
     'runtimeNodesMemo',
     () => {
       const viewportBucket = Math.round(viewport.zoom * 10)
+      const sharedDragPulse = dragSample.tick % 11
 
-      return nodes.map((node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          liveHint: {
-            viewportBucket,
-            dragPulse: dragSample.tick % 11,
-          },
-        },
-        style: {
-          ...node.style,
-          borderRadius: 12,
-        },
-      }))
+      if (mode === 'problematic') {
+        runtimeNodeCacheRef.current.clear()
+        return buildProblematicRuntimeNodes(nodes, viewportBucket, sharedDragPulse)
+      }
+
+      const fixedResult = buildFixedRuntimeNodes({
+        nodes,
+        previousCache: runtimeNodeCacheRef.current,
+        viewportBucket,
+        sharedDragPulse,
+        draggedNodeId: dragSample.nodeId,
+      })
+
+      runtimeNodeCacheRef.current = fixedResult.cache
+      return fixedResult.nodes
     },
-    [nodes, viewport, dragSample, selectedNodeId],
+    [nodes, viewport, dragSample, runtimeNodesSelectionDependency, mode],
   )
 
   const hotNodeIds = useTrackedMemo(
@@ -791,6 +1095,26 @@ function App() {
         <p>
           Tiny PoC for measuring how much work a simple interaction can trigger in a React + React Flow app.
         </p>
+        <div className="mode-switch">
+          <span>Implementation mode:</span>
+          <button
+            type="button"
+            className={mode === 'problematic' ? 'mode-button active' : 'mode-button'}
+            onClick={() => handleModeChange('problematic')}
+          >
+            {modeLabels.problematic}
+          </button>
+          <button
+            type="button"
+            className={mode === 'fixed' ? 'mode-button active' : 'mode-button'}
+            onClick={() => handleModeChange('fixed')}
+          >
+            {modeLabels.fixed}
+          </button>
+          <span className="subtle mode-note">
+            Tracker is unchanged across both modes. Use Reset + same interactions for fair comparison.
+          </span>
+        </div>
       </header>
 
       <div className="layout">
@@ -827,7 +1151,14 @@ function App() {
             dragSample={dragSample}
             hotNodeIds={hotNodeIds}
           />
-          <DebugPanel />
+          <DebugPanel
+            mode={mode}
+            resetVersion={resetVersion}
+            lastResetReason={lastResetReason}
+            modeSwitchCount={modeSwitchCount}
+            modeEntryResetVersion={modeEntryResetVersion}
+            onRequestReset={() => performReset('manual', mode)}
+          />
         </aside>
       </div>
     </div>
