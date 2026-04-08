@@ -114,6 +114,12 @@ Fix implementation is intentionally isolated in:
 
 - `src/runtimeNodeStabilization.ts`
 
+Instrumentation is intentionally isolated in:
+
+- `src/instrumentation/trackerStore.ts` (interaction + render/effect/memo/hook state store)
+- `src/instrumentation/hookTrackers.ts` (`useRenderTracker`, `useTrackedEffect`, `useTrackedMemo`, `useTrackedCallback`)
+- `src/instrumentation/diagnosticSummary.ts` (likely-cause and comparison summary helpers)
+
 ## How to run the comparison
 
 1. Select `Problematic mode`

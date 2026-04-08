@@ -1,0 +1,275 @@
+:root {
+  color-scheme: light;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  background: #f4f7fb;
+  color: #182332;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top left, #f9fbff 0%, #e8f0fb 55%, #d9e8f8 100%);
+}
+
+.app-shell {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 24px;
+}
+
+.app-header h1 {
+  margin-bottom: 8px;
+}
+
+.app-header p {
+  margin-top: 0;
+  color: #395470;
+}
+
+.dashboard {
+  display: grid;
+  gap: 16px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #c9d9ec;
+  border-radius: 10px;
+  background: #ffffffd9;
+}
+
+.toolbar label {
+  display: grid;
+  gap: 6px;
+  min-width: 180px;
+  font-size: 14px;
+}
+
+.toolbar input,
+.toolbar select,
+.toolbar button {
+  min-height: 36px;
+  border: 1px solid #b8cce4;
+  border-radius: 8px;
+  background: white;
+  padding: 6px 10px;
+}
+
+.toolbar button {
+  margin-top: auto;
+  cursor: pointer;
+}
+
+.metrics-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.metrics-grid article {
+  border: 1px solid #c9d9ec;
+  border-radius: 10px;
+  background: #ffffffd9;
+  padding: 12px;
+}
+
+.metrics-grid h2 {
+  margin-top: 0;
+  font-size: 16px;
+}
+
+.metrics-grid p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.measurement-panel {
+  display: grid;
+  gap: 12px;
+  border: 1px solid #c9d9ec;
+  border-radius: 10px;
+  background: #ffffffd9;
+  padding: 12px;
+}
+
+.measurement-header h2 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.measurement-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #395470;
+}
+
+.measurement-summary {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.measurement-summary article {
+  border: 1px solid #d3dfef;
+  border-radius: 8px;
+  background: #f8fbff;
+  padding: 10px;
+}
+
+.measurement-summary h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.measurement-summary p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.measurement-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.measurement-controls button {
+  min-height: 34px;
+  border: 1px solid #a9bdd7;
+  border-radius: 8px;
+  background: #eef4ff;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+
+.measurement-table-wrapper {
+  overflow: auto;
+}
+
+.measurement-table-wrapper h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.measurement-table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.measurement-table-wrapper th,
+.measurement-table-wrapper td {
+  border: 1px solid #d2deee;
+  text-align: left;
+  padding: 6px 8px;
+  vertical-align: top;
+}
+
+.measurement-table-wrapper thead {
+  background: #edf4ff;
+}
+
+.metadata-cell {
+  min-width: 160px;
+  max-width: 360px;
+  overflow-wrap: anywhere;
+}
+
+.empty-row {
+  margin: 0;
+  font-size: 13px;
+  color: #50657d;
+}
+
+.measurement-export-preview h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.measurement-export-preview pre {
+  margin: 0;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid #d2deee;
+  border-radius: 8px;
+  background: #f7fbff;
+  font-size: 11px;
+  padding: 10px;
+}
+
+.orders-list {
+  display: grid;
+  gap: 10px;
+  max-height: 56vh;
+  overflow: auto;
+  padding: 4px;
+}
+
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #cad8e9;
+  background: #ffffff;
+}
+
+.order-row h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.order-row p {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+.order-row-main {
+  min-width: 0;
+}
+
+.order-row-actions {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 160px;
+}
+
+.order-row-actions button {
+  border: 1px solid #a9bdd7;
+  border-radius: 8px;
+  background: #eef4ff;
+  min-height: 34px;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    padding: 14px;
+  }
+
+  .order-row {
+    flex-direction: column;
+  }
+
+  .order-row-actions {
+    min-width: 0;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .order-row-actions p {
+    grid-column: 1 / span 2;
+  }
+
+  .measurement-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

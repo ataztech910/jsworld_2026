@@ -24,17 +24,21 @@ import {
   scopeShortLabel,
   startInteraction,
   type ComponentId,
-  type HookDiagnosticSnapshot,
-  type InteractionScope,
-  type PropDiagnosticSnapshot,
   type TrackerSnapshot,
-} from './tracker'
+} from './instrumentation/trackerStore'
 import {
   useRenderTracker,
   useTrackedCallback,
   useTrackedEffect,
   useTrackedMemo,
-} from './diagnostics'
+} from './instrumentation/hookTrackers'
+import {
+  buildLikelyCauses,
+  formatDependencySummary,
+  formatScopeCounts,
+  sumInteractionMetric,
+  topRerenderLabel,
+} from './instrumentation/diagnosticSummary'
 import {
   buildFixedRuntimeNodes,
   buildProblematicRuntimeNodes,
@@ -132,108 +136,10 @@ const buildInitialEdges = (): Edge[] => {
 const initialNodes = buildInitialNodes()
 const initialEdges = buildInitialEdges()
 
-const formatScopeCounts = (
-  counts: Record<InteractionScope, number>,
-): string => {
-  return [
-    `drag:${counts.DRAG_NODE}`,
-    `pan:${counts.PAN_CANVAS}`,
-    `select:${counts.SELECT_NODE}`,
-    `idle:${counts.IDLE}`,
-  ].join(' ')
-}
-
-const formatDependencySummary = (hook: HookDiagnosticSnapshot): string => {
-  if (hook.depChanges.length === 0) {
-    return 'no dependency changes captured'
-  }
-
-  return hook.depChanges
-    .slice(0, 3)
-    .map((dep) => `dep[${dep.index}] ${dep.valueKind} x${dep.count}`)
-    .join(', ')
-}
-
-const sumInteractionMetric = (
-  snapshot: TrackerSnapshot,
-  metric: 'renders' | 'effects' | 'memos',
-): number => {
-  return interactionList.reduce((sum, interaction) => {
-    return sum + snapshot.interactions[interaction][metric]
-  }, 0)
-}
-
-const topRerenderLabel = (snapshot: TrackerSnapshot): string => {
-  const topComponent = Object.values(snapshot.diagnostics.renders).sort(
-    (a, b) => b.renders - a.renders,
-  )[0]
-
-  if (!topComponent) {
-    return 'n/a'
-  }
-
-  return `${componentLabels[topComponent.component]} (${topComponent.renders})`
-}
-
-const buildLikelyCauses = (
-  hooks: HookDiagnosticSnapshot[],
-  props: PropDiagnosticSnapshot[],
-): string[] => {
-  const lines: string[] = []
-
-  const topReferenceProp = [...props]
-    .filter((prop) => prop.referenceOnlyChanges > 0)
-    .sort((a, b) => b.referenceOnlyChanges - a.referenceOnlyChanges)[0]
-
-  if (topReferenceProp) {
-    lines.push(
-      `${componentLabels[topReferenceProp.component]} rerendered mainly because \`${topReferenceProp.propName}\` changed by reference (${topReferenceProp.referenceOnlyChanges}/${topReferenceProp.changes} changes).`,
-    )
-  }
-
-  const topEffect = [...hooks]
-    .filter((hook) => hook.kind === 'effect')
-    .sort((a, b) => b.runs - a.runs)[0]
-
-  if (topEffect) {
-    const dominantDep = topEffect.depChanges[0]
-    lines.push(
-      dominantDep
-        ? `${componentLabels[topEffect.component]} effect \`${topEffect.hookId}\` reran ${topEffect.runs} times, mostly because dep[${dominantDep.index}] (${dominantDep.valueKind}) changed.`
-        : `${componentLabels[topEffect.component]} effect \`${topEffect.hookId}\` reran ${topEffect.runs} times.`,
-    )
-  }
-
-  const unstableMemo = [...hooks]
-    .filter((hook) => hook.kind === 'memo' && hook.invalidatingTooOften)
-    .sort((a, b) => b.invalidationRatio - a.invalidationRatio)[0]
-
-  if (unstableMemo) {
-    lines.push(
-      `${componentLabels[unstableMemo.component]} memo \`${unstableMemo.hookId}\` recomputed on ${(unstableMemo.invalidationRatio * 100).toFixed(0)}% of renders.`,
-    )
-  }
-
-  const unstableCallback = [...hooks]
-    .filter((hook) => hook.kind === 'callback')
-    .sort((a, b) => b.runs - a.runs)[0]
-
-  if (unstableCallback && unstableCallback.runs >= 5) {
-    lines.push(
-      `${componentLabels[unstableCallback.component]} callback \`${unstableCallback.hookId}\` changed identity ${unstableCallback.runs} times (${formatScopeCounts(unstableCallback.byInteraction)}).`,
-    )
-  }
-
-  if (lines.length === 0) {
-    lines.push('Not enough data yet. Run drag, pan, and select interactions to populate diagnostics.')
-  }
-
-  return lines
-}
-
 const ProfiledNode = (props: NodeProps<FlowNode>) => {
   const { id, data, selected, dragging } = props
 
+  // Diagnostic instrumentation: track why node components rerender during graph interactions.
   useRenderTracker('GRAPH_NODE', {
     id,
     data,
@@ -241,6 +147,7 @@ const ProfiledNode = (props: NodeProps<FlowNode>) => {
     dragging,
   })
 
+  // Diagnostic instrumentation: measure whether this memo actually avoids recomputation.
   const score = useTrackedMemo(
     'GRAPH_NODE',
     'scoreMemo',
@@ -257,6 +164,7 @@ const ProfiledNode = (props: NodeProps<FlowNode>) => {
     [data],
   )
 
+  // Diagnostic instrumentation: capture effect reruns and dependency churn in node-level effects.
   useTrackedEffect(
     'GRAPH_NODE',
     'selectionEffect',
@@ -289,6 +197,7 @@ type DetailsPanelProps = {
 }
 
 const DetailsPanel = ({ selectedNode, viewport, dragSample, hotNodeIds }: DetailsPanelProps) => {
+  // Diagnostic instrumentation: record panel rerenders and the prop changes that caused them.
   useRenderTracker('DETAILS_PANEL', {
     selectedNode,
     viewport,
@@ -319,6 +228,7 @@ const DetailsPanel = ({ selectedNode, viewport, dragSample, hotNodeIds }: Detail
 
   const [effectTrail, setEffectTrail] = useState<string[]>([])
 
+  // Diagnostic instrumentation: track panel effect churn to separate semantic updates from ref churn.
   useTrackedEffect(
     'DETAILS_PANEL',
     'effectTrailSync',
@@ -911,6 +821,7 @@ function App() {
     [nodes, viewport, dragSample, runtimeNodesSelectionDependency, mode],
   )
 
+  // Diagnostic instrumentation: check whether derived root memos are invalidating too often.
   const hotNodeIds = useTrackedMemo(
     'APP_ROOT',
     'hotNodeIdsMemo',
@@ -979,6 +890,7 @@ function App() {
     }
   }, [])
 
+  // Diagnostic instrumentation: track callback identity churn for event handlers.
   const handleNodeClick = useTrackedCallback(
     'APP_ROOT',
     'handleNodeClickCallback',
