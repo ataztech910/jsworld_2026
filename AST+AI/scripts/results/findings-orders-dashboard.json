@@ -1,0 +1,34 @@
+{
+  "component": "OrdersDashboard",
+  "findings": [
+    {
+      "type": "inline-handler-in-map",
+      "location": "OrdersDashboard.tsx:250",
+      "code": "onSelect={() => { measureAction('actions.toggleOrderSelection', () => { if (selectedOrderIds.includes(entry.order.id)) { setSelectedOrderIds(selectedOrderIds.filter(id => id !== entry.order.id)); } else { setSelectedOrderIds([...selectedOrderIds, entry.order.id]); } }, { kind: 'user', orderId: entry.order.id }); }}",
+      "context": "sortedOrders.map(entry => <OrderRow ... />)",
+      "variables": [
+        "entry",
+        "id",
+        "measureAction",
+        "selectedOrderIds",
+        "setSelectedOrderIds"
+      ],
+      "goal": "stabilize handler reference to reduce rerenders"
+    },
+    {
+      "type": "inline-handler-in-map",
+      "location": "OrdersDashboard.tsx:266",
+      "code": "onBumpPriority={() => { measureAction('actions.bumpOrderPriority', () => { setOrders(orders.map(order => { if (order.id === entry.order.id) { return { ...order, priority: Math.min(order.priority + 1, 5) }; } return order; })); }, { kind: 'user', orderId: entry.order.id }); }}",
+      "context": "sortedOrders.map(entry => <OrderRow ... />)",
+      "variables": [
+        "Math",
+        "entry",
+        "measureAction",
+        "order",
+        "orders",
+        "setOrders"
+      ],
+      "goal": "stabilize handler reference to reduce rerenders"
+    }
+  ]
+}

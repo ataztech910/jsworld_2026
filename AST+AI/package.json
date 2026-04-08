@@ -10,7 +10,9 @@
     "analyze:react": "node scripts/analyze-react-perf.mjs",
     "ast": "node --env-file=.env scripts/clod.mjs",
     "experiment:ast": "node --experimental-strip-types --env-file=.env scripts/run-ast-experiment.mjs",
-    "experiment:full": "node --experimental-strip-types --env-file=.env scripts/run-full-context-experiment.mjs"
+    "experiment:full": "node --experimental-strip-types --env-file=.env scripts/run-full-context-experiment.mjs",
+    "results:table": "node scripts/results-table.mjs",
+    "full": "cd /Users/andrei/Desktop/branches/JSWorld/AST+AI && node scripts/analyze-react-perf.mjs src/components/OrdersDashboard.tsx | awk 'flag{print} /^JSON Output:/{flag=1; next}' > scripts/results/findings-orders-dashboard.json && TARGET_ISSUE=inline-handler-in-map npm run experiment:ast -- scripts/results/findings-orders-dashboard.json && TARGET_ISSUE=inline-handler-in-map npm run experiment:full -- src/components/OrdersDashboard.tsx"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.86.1",

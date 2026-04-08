@@ -50,6 +50,7 @@ interface RunResult {
 
 const DEFAULT_MODEL = 'claude-sonnet-4-20250514';
 const DEFAULT_RUN_COUNT = 3;
+const DEFAULT_FULL_CONTEXT_TARGET_ISSUE = 'inline-handler-in-map';
 
 function getTimeMeta(): RunTimeMeta {
   const now = new Date();
@@ -167,6 +168,38 @@ function getRunCount() {
   return value;
 }
 
+function getConfiguredTargetIssue() {
+  const value = process.env.TARGET_ISSUE;
+  if (!value) {
+    return '';
+  }
+
+  return value.trim();
+}
+
+function resolveTargetIssueForAstFinding(finding: Finding) {
+  const configured = getConfiguredTargetIssue();
+  if (configured) {
+    return configured;
+  }
+
+  return finding.type;
+}
+
+function resolveTargetIssueForFullContext() {
+  const configured = getConfiguredTargetIssue();
+  if (configured) {
+    return configured;
+  }
+
+  const fullConfigured = process.env.FULL_CONTEXT_TARGET_ISSUE;
+  if (fullConfigured && fullConfigured.trim()) {
+    return fullConfigured.trim();
+  }
+
+  return DEFAULT_FULL_CONTEXT_TARGET_ISSUE;
+}
+
 function createClient() {
   if (!process.env.ANTHROPIC_API_KEY) {
     throw new Error('ANTHROPIC_API_KEY is missing. Add it to your .env before running.');
@@ -215,7 +248,8 @@ async function executePromptRun(
   runId: number,
   attempt: number,
   finding: Finding,
-  prompt: string
+  prompt: string,
+  targetIssue: string
 ): Promise<RunRecord> {
   const startedAt = getTimeMeta();
   const startedMs = Date.now();
@@ -235,7 +269,7 @@ async function executePromptRun(
   const durationMs = Date.now() - startedMs;
   const finishedAt = getTimeMeta();
   const responseText = toResponseText(response);
-  const evaluation = evaluateResponse(responseText, finding);
+  const evaluation = evaluateResponse(responseText, finding, targetIssue);
 
   console.log(`\n--- RUN ${runId} ---`);
   console.log(`Finding: ${finding.findingId} (${finding.type})`);
@@ -281,9 +315,18 @@ export async function runAstExperiment(options: RunExperimentOptions): Promise<R
 
   for (const finding of loaded.findings) {
     const prompt = buildPrompt(finding);
+    const targetIssue = resolveTargetIssueForAstFinding(finding);
 
     for (let attempt = 1; attempt <= runCountPerFinding; attempt += 1) {
-      const run = await executePromptRun(client, model, nextRunId, attempt, finding, prompt);
+      const run = await executePromptRun(
+        client,
+        model,
+        nextRunId,
+        attempt,
+        finding,
+        prompt,
+        targetIssue
+      );
       runs.push(run);
       nextRunId += 1;
     }
@@ -302,6 +345,7 @@ export async function runAstExperiment(options: RunExperimentOptions): Promise<R
       component: loaded.component,
       findingsFile: findingsAbsolutePath,
       findingCount: loaded.findings.length,
+      targetIssue: getConfiguredTargetIssue() || 'per-finding type',
     },
     model,
     runCountPerFinding,
@@ -331,6 +375,7 @@ export async function runFullContextExperiment(
   const absoluteFilePath = path.resolve(process.cwd(), options.filePath);
   const fileCode = await fs.readFile(absoluteFilePath, 'utf8');
   const prompt = buildFullPrompt(fileCode);
+  const targetIssue = resolveTargetIssueForFullContext();
 
   const fullFinding: Finding = {
     findingId: 'full-context-001',
@@ -346,7 +391,15 @@ export async function runFullContextExperiment(
   const runs: RunRecord[] = [];
 
   for (let attempt = 1; attempt <= runCount; attempt += 1) {
-    const run = await executePromptRun(client, model, attempt, attempt, fullFinding, prompt);
+    const run = await executePromptRun(
+      client,
+      model,
+      attempt,
+      attempt,
+      fullFinding,
+      prompt,
+      targetIssue
+    );
     runs.push(run);
   }
 
@@ -361,6 +414,7 @@ export async function runFullContextExperiment(
     },
     source: {
       filePath: absoluteFilePath,
+      targetIssue,
     },
     model,
     runCount,

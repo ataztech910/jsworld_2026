@@ -1,0 +1,312 @@
+{
+  "experiment": {
+    "type": "AST_BOUND",
+    "description": "AST-driven optimization experiment for OrdersDashboard"
+  },
+  "source": {
+    "component": "OrdersDashboard",
+    "findingsFile": "/Users/andrei/Desktop/branches/JSWorld/AST+AI/scripts/results/findings-orders-dashboard.json",
+    "findingCount": 2,
+    "targetIssue": "inline-handler-in-map"
+  },
+  "model": "claude-sonnet-4-20250514",
+  "runCountPerFinding": 3,
+  "sessionStartedAt": {
+    "timestamp": 1775690007910,
+    "iso": "2026-04-08T23:13:27.910Z",
+    "local": "4/9/2026, 1:13:27 AM"
+  },
+  "sessionFinishedAt": {
+    "timestamp": 1775690087093,
+    "iso": "2026-04-08T23:14:47.093Z",
+    "local": "4/9/2026, 1:14:47 AM"
+  },
+  "summary": {
+    "averageLatencyMs": 13192,
+    "minLatencyMs": 12020,
+    "maxLatencyMs": 13966
+  },
+  "evaluationSummary": {
+    "consistencyScore": 83.33,
+    "correctnessRate": 100,
+    "focusRate": 33.33,
+    "localChangeRate": 100,
+    "minimalityRate": 100,
+    "safetyAgreementRate": 100
+  },
+  "runs": [
+    {
+      "runId": 1,
+      "findingId": "finding-001",
+      "type": "inline-handler-in-map",
+      "location": "OrdersDashboard.tsx:250",
+      "attempt": 1,
+      "prompt": "You are given a bounded React performance issue extracted from AST analysis.\n\nIssue type:\ninline-handler-in-map\n\nGoal:\nstabilize handler reference to reduce rerenders\n\nCode:\nonSelect={() => { measureAction('actions.toggleOrderSelection', () => { if (selectedOrderIds.includes(entry.order.id)) { setSelectedOrderIds(selectedOrderIds.filter(id => id !== entry.order.id)); } else { setSelectedOrderIds([...selectedOrderIds, entry.order.id]); } }, { kind: 'user', orderId: entry.order.id }); }}\n\nContext:\nsortedOrders.map(entry => <OrderRow ... />)\n\nVariables:\n[\"entry\",\"id\",\"measureAction\",\"selectedOrderIds\",\"setSelectedOrderIds\"]\n\nTask:\nSuggest the smallest safe React change that would reduce unnecessary rerenders.\n\nConstraints:\n- do not rewrite the whole component\n- prefer minimal diff\n- preserve behavior\n- keep instrumentation\n\nReturn:\n1. explanation\n2. minimal fix\n3. code example\n4. is this safe to auto-apply (yes/no and why)",
+      "response": "## Analysis\n\nThe issue is an inline handler inside a map function that creates a new function reference on every render for each item, causing unnecessary rerenders of `OrderRow` components.\n\n## 1. Explanation\n\nThe inline `onSelect` handler is recreated for every `entry` on each render, causing all `OrderRow` components to rerender even when their data hasn't changed. We need to extract this handler and memoize it to maintain stable references while preserving the per-item behavior.\n\n## 2. Minimal Fix\n\nExtract the handler logic into a memoized callback that returns a function for each order ID:\n\n```javascript\n// Add before the map\nconst createSelectHandler = useCallback((orderId) => () => {\n  measureAction('actions.toggleOrderSelection', () => {\n    if (selectedOrderIds.includes(orderId)) {\n      setSelectedOrderIds(selectedOrderIds.filter(id => id !== orderId));\n    } else {\n      setSelectedOrderIds([...selectedOrderIds, orderId]);\n    }\n  }, { kind: 'user', orderId });\n}, [measureAction, selectedOrderIds, setSelectedOrderIds]);\n```\n\n## 3. Code Example\n\n```javascript\n// Before\nsortedOrders.map(entry => <OrderRow \n  onSelect={() => { \n    measureAction('actions.toggleOrderSelection', () => { \n      if (selectedOrderIds.includes(entry.order.id)) { \n        setSelectedOrderIds(selectedOrderIds.filter(id => id !== entry.order.id)); \n      } else { \n        setSelectedOrderIds([...selectedOrderIds, entry.order.id]); \n      } \n    }, { kind: 'user', orderId: entry.order.id }); \n  }}\n  ... \n/>)\n\n// After\nconst createSelectHandler = useCallback((orderId) => () => {\n  measureAction('actions.toggleOrderSelection', () => {\n    if (selectedOrderIds.includes(orderId)) {\n      setSelectedOrderIds(selectedOrderIds.filter(id => id !== orderId));\n    } else {\n      setSelectedOrderIds([...selectedOrderIds, orderId]);\n    }\n  }, { kind: 'user', orderId });\n}, [measureAction, selectedOrderIds, setSelectedOrderIds]);\n\nsortedOrders.map(entry => <OrderRow \n  onSelect={createSelectHandler(entry.order.id)}\n  ... \n/>)\n```\n\n## 4. Safe to Auto-apply?\n\n**No** - This change requires careful consideration because:\n\n1. **Import dependency**: Requires `useCallback` to be imported from React\n2. **Scope placement**: The callback must be placed in the correct scope within the component\n3. **Dependency analysis**: The dependency array needs to be correctly identified from the broader component context\n4. **Component structure**: Requires understanding of the component's structure to place the code appropriately\n\nThis optimization should be manually reviewed and implemented to ensure proper placement and dependencies.",
+      "durationMs": 12271,
+      "startedAt": {
+        "timestamp": 1775690007930,
+        "iso": "2026-04-08T23:13:27.930Z",
+        "local": "4/9/2026, 1:13:27 AM"
+      },
+      "finishedAt": {
+        "timestamp": 1775690020201,
+        "iso": "2026-04-08T23:13:40.201Z",
+        "local": "4/9/2026, 1:13:40 AM"
+      },
+      "usage": {
+        "input_tokens": 261,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 691,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      },
+      "evaluation": {
+        "isCorrect": true,
+        "isFocused": true,
+        "isLocalChange": true,
+        "isSafeToAutoApply": false,
+        "primaryStrategy": "useCallback",
+        "issuesDetected": [
+          "Import dependency: Requires `useCallback` to be imported from React",
+          "Scope placement: The callback must be placed in the correct scope within the component"
+        ],
+        "notes": "targetIssue=inline-handler-in-map; isFocused=true (target issue is directly addressed as a primary concern); isLocalChange=true (suggested changes are localized near the target issue); isSafeToAutoApply=false (response does not explicitly confirm safe auto-apply); variables outside finding.variables: kind, onSelect, orderId, sortedOrders"
+      }
+    },
+    {
+      "runId": 2,
+      "findingId": "finding-001",
+      "type": "inline-handler-in-map",
+      "location": "OrdersDashboard.tsx:250",
+      "attempt": 2,
+      "prompt": "You are given a bounded React performance issue extracted from AST analysis.\n\nIssue type:\ninline-handler-in-map\n\nGoal:\nstabilize handler reference to reduce rerenders\n\nCode:\nonSelect={() => { measureAction('actions.toggleOrderSelection', () => { if (selectedOrderIds.includes(entry.order.id)) { setSelectedOrderIds(selectedOrderIds.filter(id => id !== entry.order.id)); } else { setSelectedOrderIds([...selectedOrderIds, entry.order.id]); } }, { kind: 'user', orderId: entry.order.id }); }}\n\nContext:\nsortedOrders.map(entry => <OrderRow ... />)\n\nVariables:\n[\"entry\",\"id\",\"measureAction\",\"selectedOrderIds\",\"setSelectedOrderIds\"]\n\nTask:\nSuggest the smallest safe React change that would reduce unnecessary rerenders.\n\nConstraints:\n- do not rewrite the whole component\n- prefer minimal diff\n- preserve behavior\n- keep instrumentation\n\nReturn:\n1. explanation\n2. minimal fix\n3. code example\n4. is this safe to auto-apply (yes/no and why)",
+      "response": "## Analysis\n\nThe issue is an inline handler inside a map function that creates a new function reference on every render for each item, causing unnecessary rerenders of `OrderRow` components.\n\n## 1. Explanation\n\nThe inline `onSelect` handler is recreated for every `entry` on each render, causing all `OrderRow` components to rerender even when their data hasn't changed. We need to extract this handler and memoize it to maintain stable references while preserving the per-item behavior.\n\n## 2. Minimal Fix\n\nExtract the handler to a memoized callback that returns the specific handler for each order ID:\n\n```javascript\n// Add before the map\nconst handleOrderSelect = useCallback((orderId) => () => {\n  measureAction('actions.toggleOrderSelection', () => {\n    if (selectedOrderIds.includes(orderId)) {\n      setSelectedOrderIds(selectedOrderIds.filter(id => id !== orderId));\n    } else {\n      setSelectedOrderIds([...selectedOrderIds, orderId]);\n    }\n  }, { kind: 'user', orderId });\n}, [measureAction, selectedOrderIds, setSelectedOrderIds]);\n```\n\n## 3. Code Example\n\n```javascript\n// Before the map:\nconst handleOrderSelect = useCallback((orderId) => () => {\n  measureAction('actions.toggleOrderSelection', () => {\n    if (selectedOrderIds.includes(orderId)) {\n      setSelectedOrderIds(selectedOrderIds.filter(id => id !== orderId));\n    } else {\n      setSelectedOrderIds([...selectedOrderIds, orderId]);\n    }\n  }, { kind: 'user', orderId });\n}, [measureAction, selectedOrderIds, setSelectedOrderIds]);\n\n// In the map:\nsortedOrders.map(entry => <OrderRow \n  onSelect={handleOrderSelect(entry.order.id)}\n  ... \n/>)\n```\n\n## 4. Safe to Auto-apply?\n\n**No** - This change requires careful consideration because:\n\n1. **Hook dependency**: Need to ensure `useCallback` is imported and available\n2. **Dependency array**: The dependencies `[measureAction, selectedOrderIds, setSelectedOrderIds]` need verification - if any of these change frequently, it could negate the optimization\n3. **Component structure**: Need to ensure this is placed at the correct scope level within the component\n4. **Still creates new functions**: While better than inline handlers, `handleOrderSelect(entry.order.id)` still creates a new function per item, though the factory function is memoized\n\nA safer auto-applicable approach would require a more sophisticated solution like memoizing individual handlers per ID or using a different event delegation pattern.",
+      "durationMs": 13091,
+      "startedAt": {
+        "timestamp": 1775690020208,
+        "iso": "2026-04-08T23:13:40.208Z",
+        "local": "4/9/2026, 1:13:40 AM"
+      },
+      "finishedAt": {
+        "timestamp": 1775690033299,
+        "iso": "2026-04-08T23:13:53.299Z",
+        "local": "4/9/2026, 1:13:53 AM"
+      },
+      "usage": {
+        "input_tokens": 261,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 613,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      },
+      "evaluation": {
+        "isCorrect": true,
+        "isFocused": false,
+        "isLocalChange": true,
+        "isSafeToAutoApply": false,
+        "primaryStrategy": "mixed",
+        "issuesDetected": [
+          "Hook dependency: Need to ensure `useCallback` is imported and available",
+          "Still creates new functions: While better than inline handlers, `handleOrderSelect(entry.order.id)` still creates a new function per item, though the factory function is memoized"
+        ],
+        "notes": "targetIssue=inline-handler-in-map; isFocused=false (target issue is not presented as a primary issue); isLocalChange=true (suggested changes are localized near the target issue); isSafeToAutoApply=false (response does not explicitly confirm safe auto-apply); variables outside finding.variables: handleOrderSelect, kind, onSelect, orderId, sortedOrders"
+      }
+    },
+    {
+      "runId": 3,
+      "findingId": "finding-001",
+      "type": "inline-handler-in-map",
+      "location": "OrdersDashboard.tsx:250",
+      "attempt": 3,
+      "prompt": "You are given a bounded React performance issue extracted from AST analysis.\n\nIssue type:\ninline-handler-in-map\n\nGoal:\nstabilize handler reference to reduce rerenders\n\nCode:\nonSelect={() => { measureAction('actions.toggleOrderSelection', () => { if (selectedOrderIds.includes(entry.order.id)) { setSelectedOrderIds(selectedOrderIds.filter(id => id !== entry.order.id)); } else { setSelectedOrderIds([...selectedOrderIds, entry.order.id]); } }, { kind: 'user', orderId: entry.order.id }); }}\n\nContext:\nsortedOrders.map(entry => <OrderRow ... />)\n\nVariables:\n[\"entry\",\"id\",\"measureAction\",\"selectedOrderIds\",\"setSelectedOrderIds\"]\n\nTask:\nSuggest the smallest safe React change that would reduce unnecessary rerenders.\n\nConstraints:\n- do not rewrite the whole component\n- prefer minimal diff\n- preserve behavior\n- keep instrumentation\n\nReturn:\n1. explanation\n2. minimal fix\n3. code example\n4. is this safe to auto-apply (yes/no and why)",
+      "response": "## Analysis\n\nThe issue is an inline handler inside a map function that creates a new function reference on every render for each item, causing unnecessary rerenders of `OrderRow` components.\n\n## 1. Explanation\n\nThe inline `onSelect` handler is recreated for every `entry` on each render, causing all `OrderRow` components to rerender even when their data hasn't changed. We need to extract this handler and memoize it to maintain stable references while preserving the per-item behavior.\n\n## 2. Minimal Fix\n\nExtract the handler logic into a memoized callback that returns a function for each order ID:\n\n```javascript\n// Add before the map\nconst createSelectHandler = useCallback((orderId) => () => {\n  measureAction('actions.toggleOrderSelection', () => {\n    if (selectedOrderIds.includes(orderId)) {\n      setSelectedOrderIds(selectedOrderIds.filter(id => id !== orderId));\n    } else {\n      setSelectedOrderIds([...selectedOrderIds, orderId]);\n    }\n  }, { kind: 'user', orderId });\n}, [measureAction, selectedOrderIds, setSelectedOrderIds]);\n```\n\n## 3. Code Example\n\n```javascript\n// Before\nsortedOrders.map(entry => <OrderRow \n  onSelect={() => { \n    measureAction('actions.toggleOrderSelection', () => { \n      if (selectedOrderIds.includes(entry.order.id)) { \n        setSelectedOrderIds(selectedOrderIds.filter(id => id !== entry.order.id)); \n      } else { \n        setSelectedOrderIds([...selectedOrderIds, entry.order.id]); \n      } \n    }, { kind: 'user', orderId: entry.order.id }); \n  }}\n  ... \n/>)\n\n// After\nconst createSelectHandler = useCallback((orderId) => () => {\n  measureAction('actions.toggleOrderSelection', () => {\n    if (selectedOrderIds.includes(orderId)) {\n      setSelectedOrderIds(selectedOrderIds.filter(id => id !== orderId));\n    } else {\n      setSelectedOrderIds([...selectedOrderIds, orderId]);\n    }\n  }, { kind: 'user', orderId });\n}, [measureAction, selectedOrderIds, setSelectedOrderIds]);\n\nsortedOrders.map(entry => <OrderRow \n  onSelect={createSelectHandler(entry.order.id)}\n  ... \n/>)\n```\n\n## 4. Safe to Auto-apply?\n\n**No** - This change requires careful consideration because:\n\n1. **Import dependency**: Requires `useCallback` to be imported from React\n2. **Scope placement**: The callback must be placed in the correct scope within the component\n3. **Dependency analysis**: The dependency array needs to be correctly identified from the broader component context\n4. **Component structure**: Requires understanding of the component's structure to place the code appropriately\n\nThis optimization should be manually reviewed and implemented to ensure proper placement and dependencies.",
+      "durationMs": 12020,
+      "startedAt": {
+        "timestamp": 1775690033300,
+        "iso": "2026-04-08T23:13:53.300Z",
+        "local": "4/9/2026, 1:13:53 AM"
+      },
+      "finishedAt": {
+        "timestamp": 1775690045320,
+        "iso": "2026-04-08T23:14:05.320Z",
+        "local": "4/9/2026, 1:14:05 AM"
+      },
+      "usage": {
+        "input_tokens": 261,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 691,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      },
+      "evaluation": {
+        "isCorrect": true,
+        "isFocused": true,
+        "isLocalChange": true,
+        "isSafeToAutoApply": false,
+        "primaryStrategy": "useCallback",
+        "issuesDetected": [
+          "Import dependency: Requires `useCallback` to be imported from React",
+          "Scope placement: The callback must be placed in the correct scope within the component"
+        ],
+        "notes": "targetIssue=inline-handler-in-map; isFocused=true (target issue is directly addressed as a primary concern); isLocalChange=true (suggested changes are localized near the target issue); isSafeToAutoApply=false (response does not explicitly confirm safe auto-apply); variables outside finding.variables: kind, onSelect, orderId, sortedOrders"
+      }
+    },
+    {
+      "runId": 4,
+      "findingId": "finding-002",
+      "type": "inline-handler-in-map",
+      "location": "OrdersDashboard.tsx:266",
+      "attempt": 1,
+      "prompt": "You are given a bounded React performance issue extracted from AST analysis.\n\nIssue type:\ninline-handler-in-map\n\nGoal:\nstabilize handler reference to reduce rerenders\n\nCode:\nonBumpPriority={() => { measureAction('actions.bumpOrderPriority', () => { setOrders(orders.map(order => { if (order.id === entry.order.id) { return { ...order, priority: Math.min(order.priority + 1, 5) }; } return order; })); }, { kind: 'user', orderId: entry.order.id }); }}\n\nContext:\nsortedOrders.map(entry => <OrderRow ... />)\n\nVariables:\n[\"Math\",\"entry\",\"measureAction\",\"order\",\"orders\",\"setOrders\"]\n\nTask:\nSuggest the smallest safe React change that would reduce unnecessary rerenders.\n\nConstraints:\n- do not rewrite the whole component\n- prefer minimal diff\n- preserve behavior\n- keep instrumentation\n\nReturn:\n1. explanation\n2. minimal fix\n3. code example\n4. is this safe to auto-apply (yes/no and why)",
+      "response": "## Analysis\n\nThe issue is an inline arrow function handler inside a `.map()` that creates a new function reference on every render, causing unnecessary rerenders of `OrderRow` components.\n\n## 1. Explanation\n\nThe `onBumpPriority` handler is defined inline within the map function, creating a new function instance for each render and each mapped item. This breaks React's referential equality checks and causes all `OrderRow` components to rerender even when their data hasn't changed. The handler captures `entry.order.id` from the map iteration, making it dependent on the current item.\n\n## 2. Minimal Fix\n\nExtract the handler to a memoized callback that accepts the order ID as a parameter:\n\n```javascript\n// Add before the map\nconst handleBumpPriority = useCallback((orderId) => {\n  measureAction('actions.bumpOrderPriority', () => {\n    setOrders(orders.map(order => {\n      if (order.id === orderId) {\n        return { ...order, priority: Math.min(order.priority + 1, 5) };\n      }\n      return order;\n    }));\n  }, { kind: 'user', orderId });\n}, [orders, measureAction]);\n\n// In the map\nsortedOrders.map(entry => <OrderRow \n  onBumpPriority={() => handleBumpPriority(entry.order.id)}\n  ... \n/>)\n```\n\n## 3. Code Example\n\n```diff\n+ const handleBumpPriority = useCallback((orderId) => {\n+   measureAction('actions.bumpOrderPriority', () => {\n+     setOrders(orders.map(order => {\n+       if (order.id === orderId) {\n+         return { ...order, priority: Math.min(order.priority + 1, 5) };\n+       }\n+       return order;\n+     }));\n+   }, { kind: 'user', orderId });\n+ }, [orders, measureAction]);\n\n  sortedOrders.map(entry => <OrderRow \n-   onBumpPriority={() => { measureAction('actions.bumpOrderPriority', () => { setOrders(orders.map(order => { if (order.id === entry.order.id) { return { ...order, priority: Math.min(order.priority + 1, 5) }; } return order; })); }, { kind: 'user', orderId: entry.order.id }); }}\n+   onBumpPriority={() => handleBumpPriority(entry.order.id)}\n    ... \n  />)\n```\n\n## 4. Safe to Auto-apply?\n\n**No** - This change requires careful consideration because:\n\n1. **Import dependency**: Requires `useCallback` to be imported from React\n2. **Dependency analysis**: The `measureAction` dependency might not be stable and could cause the callback to recreate frequently, negating the optimization\n3. **Component structure**: Need to verify the component structure and ensure the extracted callback is placed in the correct scope\n4. **Still creates inline functions**: The solution still creates inline arrow functions `() => handleBumpPriority(entry.order.id)`, though they're simpler\n\nA fully optimal solution would require `OrderRow` to accept the `orderId` as a prop and handle the callback internally, but that would require more significant component restructuring.",
+      "durationMs": 13966,
+      "startedAt": {
+        "timestamp": 1775690045321,
+        "iso": "2026-04-08T23:14:05.321Z",
+        "local": "4/9/2026, 1:14:05 AM"
+      },
+      "finishedAt": {
+        "timestamp": 1775690059287,
+        "iso": "2026-04-08T23:14:19.287Z",
+        "local": "4/9/2026, 1:14:19 AM"
+      },
+      "usage": {
+        "input_tokens": 263,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 789,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      },
+      "evaluation": {
+        "isCorrect": true,
+        "isFocused": false,
+        "isLocalChange": true,
+        "isSafeToAutoApply": false,
+        "primaryStrategy": "useCallback",
+        "issuesDetected": [
+          "const handleBumpPriority = useCallback((orderId) => {",
+          "Import dependency: Requires `useCallback` to be imported from React",
+          "Dependency analysis: The `measureAction` dependency might not be stable and could cause the callback to recreate frequently, negating the optimization",
+          "Component structure: Need to verify the component structure and ensure the extracted callback is placed in the correct scope",
+          "Still creates inline functions: The solution still creates inline arrow functions `() => handleBumpPriority(entry.order.id)`, though they're simpler"
+        ],
+        "notes": "targetIssue=inline-handler-in-map; isFocused=false (target issue is not presented as a primary issue); isLocalChange=true (suggested changes are localized near the target issue); isSafeToAutoApply=false (response does not explicitly confirm safe auto-apply); variables outside finding.variables: handleBumpPriority, kind, onBumpPriority, orderId, priority, sortedOrders"
+      }
+    },
+    {
+      "runId": 5,
+      "findingId": "finding-002",
+      "type": "inline-handler-in-map",
+      "location": "OrdersDashboard.tsx:266",
+      "attempt": 2,
+      "prompt": "You are given a bounded React performance issue extracted from AST analysis.\n\nIssue type:\ninline-handler-in-map\n\nGoal:\nstabilize handler reference to reduce rerenders\n\nCode:\nonBumpPriority={() => { measureAction('actions.bumpOrderPriority', () => { setOrders(orders.map(order => { if (order.id === entry.order.id) { return { ...order, priority: Math.min(order.priority + 1, 5) }; } return order; })); }, { kind: 'user', orderId: entry.order.id }); }}\n\nContext:\nsortedOrders.map(entry => <OrderRow ... />)\n\nVariables:\n[\"Math\",\"entry\",\"measureAction\",\"order\",\"orders\",\"setOrders\"]\n\nTask:\nSuggest the smallest safe React change that would reduce unnecessary rerenders.\n\nConstraints:\n- do not rewrite the whole component\n- prefer minimal diff\n- preserve behavior\n- keep instrumentation\n\nReturn:\n1. explanation\n2. minimal fix\n3. code example\n4. is this safe to auto-apply (yes/no and why)",
+      "response": "## Analysis\n\nThe issue is an inline arrow function handler inside a `.map()` that creates a new function reference on every render, causing unnecessary rerenders of `OrderRow` components.\n\n## 1. Explanation\n\nThe `onBumpPriority` handler is defined inline within the map function, creating a new function instance for each render and each mapped item. This breaks React's referential equality checks and causes all `OrderRow` components to rerender even when their data hasn't changed. The handler captures `entry.order.id` from the map iteration, making it dependent on the current item.\n\n## 2. Minimal Fix\n\nExtract the handler to a memoized callback that accepts the order ID as a parameter:\n\n```javascript\n// Add before the map\nconst handleBumpPriority = useCallback((orderId) => {\n  measureAction('actions.bumpOrderPriority', () => {\n    setOrders(orders.map(order => {\n      if (order.id === orderId) {\n        return { ...order, priority: Math.min(order.priority + 1, 5) };\n      }\n      return order;\n    }));\n  }, { kind: 'user', orderId });\n}, [orders, measureAction]);\n\n// In the map\nsortedOrders.map(entry => <OrderRow \n  onBumpPriority={() => handleBumpPriority(entry.order.id)}\n  ... \n/>)\n```\n\n## 3. Code Example\n\n```diff\n+ const handleBumpPriority = useCallback((orderId) => {\n+   measureAction('actions.bumpOrderPriority', () => {\n+     setOrders(orders.map(order => {\n+       if (order.id === orderId) {\n+         return { ...order, priority: Math.min(order.priority + 1, 5) };\n+       }\n+       return order;\n+     }));\n+   }, { kind: 'user', orderId });\n+ }, [orders, measureAction]);\n\n  sortedOrders.map(entry => <OrderRow \n-   onBumpPriority={() => { measureAction('actions.bumpOrderPriority', () => { setOrders(orders.map(order => { if (order.id === entry.order.id) { return { ...order, priority: Math.min(order.priority + 1, 5) }; } return order; })); }, { kind: 'user', orderId: entry.order.id }); }}\n+   onBumpPriority={() => handleBumpPriority(entry.order.id)}\n    ... \n  />)\n```\n\n## 4. Safe to Auto-apply?\n\n**No** - This change requires careful consideration because:\n\n1. **Import dependency**: Requires `useCallback` to be imported from React\n2. **Dependency analysis**: The `measureAction` dependency might not be stable and could cause the callback to recreate frequently, negating the optimization\n3. **Component structure**: Need to verify the component structure and ensure the extracted callback is placed in the correct scope\n4. **Still creates inline functions**: The solution still creates inline arrow functions `() => handleBumpPriority(entry.order.id)`, though they're simpler\n\nA fully optimal solution would require `OrderRow` to accept the `orderId` as a prop and handle the callback internally, but that would require more significant component restructuring.",
+      "durationMs": 13947,
+      "startedAt": {
+        "timestamp": 1775690059288,
+        "iso": "2026-04-08T23:14:19.288Z",
+        "local": "4/9/2026, 1:14:19 AM"
+      },
+      "finishedAt": {
+        "timestamp": 1775690073235,
+        "iso": "2026-04-08T23:14:33.235Z",
+        "local": "4/9/2026, 1:14:33 AM"
+      },
+      "usage": {
+        "input_tokens": 263,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 789,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      },
+      "evaluation": {
+        "isCorrect": true,
+        "isFocused": false,
+        "isLocalChange": true,
+        "isSafeToAutoApply": false,
+        "primaryStrategy": "useCallback",
+        "issuesDetected": [
+          "const handleBumpPriority = useCallback((orderId) => {",
+          "Import dependency: Requires `useCallback` to be imported from React",
+          "Dependency analysis: The `measureAction` dependency might not be stable and could cause the callback to recreate frequently, negating the optimization",
+          "Component structure: Need to verify the component structure and ensure the extracted callback is placed in the correct scope",
+          "Still creates inline functions: The solution still creates inline arrow functions `() => handleBumpPriority(entry.order.id)`, though they're simpler"
+        ],
+        "notes": "targetIssue=inline-handler-in-map; isFocused=false (target issue is not presented as a primary issue); isLocalChange=true (suggested changes are localized near the target issue); isSafeToAutoApply=false (response does not explicitly confirm safe auto-apply); variables outside finding.variables: handleBumpPriority, kind, onBumpPriority, orderId, priority, sortedOrders"
+      }
+    },
+    {
+      "runId": 6,
+      "findingId": "finding-002",
+      "type": "inline-handler-in-map",
+      "location": "OrdersDashboard.tsx:266",
+      "attempt": 3,
+      "prompt": "You are given a bounded React performance issue extracted from AST analysis.\n\nIssue type:\ninline-handler-in-map\n\nGoal:\nstabilize handler reference to reduce rerenders\n\nCode:\nonBumpPriority={() => { measureAction('actions.bumpOrderPriority', () => { setOrders(orders.map(order => { if (order.id === entry.order.id) { return { ...order, priority: Math.min(order.priority + 1, 5) }; } return order; })); }, { kind: 'user', orderId: entry.order.id }); }}\n\nContext:\nsortedOrders.map(entry => <OrderRow ... />)\n\nVariables:\n[\"Math\",\"entry\",\"measureAction\",\"order\",\"orders\",\"setOrders\"]\n\nTask:\nSuggest the smallest safe React change that would reduce unnecessary rerenders.\n\nConstraints:\n- do not rewrite the whole component\n- prefer minimal diff\n- preserve behavior\n- keep instrumentation\n\nReturn:\n1. explanation\n2. minimal fix\n3. code example\n4. is this safe to auto-apply (yes/no and why)",
+      "response": "## Analysis\n\nThe issue is an inline arrow function handler inside a `.map()` that creates a new function reference on every render, causing unnecessary rerenders of `OrderRow` components.\n\n## 1. Explanation\n\nThe `onBumpPriority` handler is defined inline within the map function, creating a new function instance for each render and each mapped item. This breaks React's referential equality checks and causes all `OrderRow` components to rerender even when their data hasn't changed. The handler captures `entry.order.id` from the map iteration, making it dependent on the current item.\n\n## 2. Minimal Fix\n\nExtract the handler to a memoized callback that accepts the order ID as a parameter:\n\n```javascript\n// Add before the map\nconst handleBumpPriority = useCallback((orderId) => {\n  measureAction('actions.bumpOrderPriority', () => {\n    setOrders(orders.map(order => {\n      if (order.id === orderId) {\n        return { ...order, priority: Math.min(order.priority + 1, 5) };\n      }\n      return order;\n    }));\n  }, { kind: 'user', orderId });\n}, [orders, measureAction]);\n\n// In the map\nsortedOrders.map(entry => <OrderRow \n  onBumpPriority={() => handleBumpPriority(entry.order.id)}\n  ... \n/>)\n```\n\n## 3. Code Example\n\n```diff\n+ const handleBumpPriority = useCallback((orderId) => {\n+   measureAction('actions.bumpOrderPriority', () => {\n+     setOrders(orders.map(order => {\n+       if (order.id === orderId) {\n+         return { ...order, priority: Math.min(order.priority + 1, 5) };\n+       }\n+       return order;\n+     }));\n+   }, { kind: 'user', orderId });\n+ }, [orders, measureAction]);\n\n  sortedOrders.map(entry => <OrderRow \n-   onBumpPriority={() => { measureAction('actions.bumpOrderPriority', () => { setOrders(orders.map(order => { if (order.id === entry.order.id) { return { ...order, priority: Math.min(order.priority + 1, 5) }; } return order; })); }, { kind: 'user', orderId: entry.order.id }); }}\n+   onBumpPriority={() => handleBumpPriority(entry.order.id)}\n    ... \n  />)\n```\n\n## 4. Safe to Auto-apply?\n\n**No** - This change requires careful consideration because:\n\n1. **Import dependency**: Requires `useCallback` to be imported from React\n2. **Dependency analysis**: The `measureAction` dependency might not be stable and could cause the callback to recreate frequently, negating the optimization\n3. **Component structure**: Need to verify the component structure and ensure the extracted callback is placed in the correct scope\n4. **Still creates inline functions**: The solution still creates inline arrow functions `() => handleBumpPriority(entry.order.id)`, though they're simpler\n\nA fully optimal solution would require `OrderRow` to accept the `orderId` as a prop and handle the callback internally, but that would require more significant component restructuring.",
+      "durationMs": 13856,
+      "startedAt": {
+        "timestamp": 1775690073236,
+        "iso": "2026-04-08T23:14:33.236Z",
+        "local": "4/9/2026, 1:14:33 AM"
+      },
+      "finishedAt": {
+        "timestamp": 1775690087092,
+        "iso": "2026-04-08T23:14:47.092Z",
+        "local": "4/9/2026, 1:14:47 AM"
+      },
+      "usage": {
+        "input_tokens": 263,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 789,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      },
+      "evaluation": {
+        "isCorrect": true,
+        "isFocused": false,
+        "isLocalChange": true,
+        "isSafeToAutoApply": false,
+        "primaryStrategy": "useCallback",
+        "issuesDetected": [
+          "const handleBumpPriority = useCallback((orderId) => {",
+          "Import dependency: Requires `useCallback` to be imported from React",
+          "Dependency analysis: The `measureAction` dependency might not be stable and could cause the callback to recreate frequently, negating the optimization",
+          "Component structure: Need to verify the component structure and ensure the extracted callback is placed in the correct scope",
+          "Still creates inline functions: The solution still creates inline arrow functions `() => handleBumpPriority(entry.order.id)`, though they're simpler"
+        ],
+        "notes": "targetIssue=inline-handler-in-map; isFocused=false (target issue is not presented as a primary issue); isLocalChange=true (suggested changes are localized near the target issue); isSafeToAutoApply=false (response does not explicitly confirm safe auto-apply); variables outside finding.variables: handleBumpPriority, kind, onBumpPriority, orderId, priority, sortedOrders"
+      }
+    }
+  ]
+}
