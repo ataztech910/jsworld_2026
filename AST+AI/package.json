@@ -7,9 +7,13 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "analyze:react": "node scripts/analyze-react-perf.mjs"
+    "analyze:react": "node scripts/analyze-react-perf.mjs",
+    "ast": "node --env-file=.env scripts/clod.mjs",
+    "experiment:ast": "node --experimental-strip-types --env-file=.env scripts/run-ast-experiment.mjs",
+    "experiment:full": "node --experimental-strip-types --env-file=.env scripts/run-full-context-experiment.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.86.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

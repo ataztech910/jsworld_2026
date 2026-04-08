@@ -30,6 +30,38 @@ Analyze a React TSX/JSX file for simple performance anti-patterns:
 npm run analyze:react -- src/components/OrdersDashboard.tsx
 ```
 
+## AST experiment pipeline
+
+Run Claude on precomputed AST findings JSON:
+
+```bash
+npm run experiment:ast -- path/to/findings.json
+```
+
+Full-context mode (no AST hints, model detects issues itself):
+
+```bash
+npm run experiment:full -- path/to/component.tsx
+```
+
+Expected input shape:
+
+```json
+{
+  "component": "OrdersDashboard",
+  "findings": [
+    {
+      "type": "inline-handler-in-map",
+      "location": "OrdersDashboard.tsx:250",
+      "code": "...",
+      "context": "...",
+      "variables": ["entry"],
+      "goal": "stabilize handler reference to reduce rerenders"
+    }
+  ]
+}
+```
+
 ## What the app includes
 
 - 600 deterministic mock orders generated from a seeded pseudo-random generator
