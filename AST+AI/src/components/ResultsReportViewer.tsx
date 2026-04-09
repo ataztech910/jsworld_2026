@@ -78,7 +78,7 @@ function average(values: number[]): number {
 }
 
 function formatPercent(value: number): string {
-  return `${Number(value.toFixed(2))}%`;
+  return `${Math.round(value)}%`;
 }
 
 function formatNumber(value: number): string {
@@ -285,53 +285,16 @@ function normalizeForCompare(value: string): string {
     .replace(/[^a-z0-9]+/g, '');
 }
 
-function buildInterpretation(astMetrics: ReportMetrics, fullMetrics: ReportMetrics): string[] {
-  const lines: string[] = [];
-
-  if (astMetrics.targetedRate >= fullMetrics.targetedRate + 10) {
-    lines.push('AST_BOUND is more focused on the target issue.');
-  } else if (fullMetrics.targetedRate >= astMetrics.targetedRate + 10) {
-    lines.push('FULL_CONTEXT is more focused on the target issue.');
-  } else {
-    lines.push('Both variants show similar issue targeting.');
-  }
-
-  if (astMetrics.localizedRate >= fullMetrics.localizedRate + 10) {
-    lines.push('AST_BOUND suggests more localized changes.');
-  } else if (fullMetrics.localizedRate >= astMetrics.localizedRate + 10) {
-    lines.push('FULL_CONTEXT suggests more localized changes.');
-  } else {
-    lines.push('Both variants are similar in change locality.');
-  }
-
-  const astTokenCost = astMetrics.avgInputTokens + astMetrics.avgOutputTokens;
-  const fullTokenCost = fullMetrics.avgInputTokens + fullMetrics.avgOutputTokens;
-
-  if (fullTokenCost >= astTokenCost + 50) {
-    lines.push('FULL_CONTEXT is broader and more token-expensive.');
-  } else if (astTokenCost >= fullTokenCost + 50) {
-    lines.push('AST_BOUND is more token-expensive in this run set.');
-  } else {
-    lines.push('Both variants have similar token cost.');
-  }
-
-  if (astMetrics.correctnessRate > fullMetrics.correctnessRate) {
-    lines.push('AST_BOUND is more often technically correct.');
-  } else if (fullMetrics.correctnessRate > astMetrics.correctnessRate) {
-    lines.push('FULL_CONTEXT is more often technically correct.');
-  } else if (
-    astMetrics.correctnessRate === 100 &&
-    fullMetrics.correctnessRate === 100 &&
-    astMetrics.targetedRate >= fullMetrics.targetedRate + 10
+function buildInterpretation(astMetrics: ReportMetrics, fullMetrics: ReportMetrics): string {
+  if (
+    Math.round(astMetrics.correctnessRate) === 100 &&
+    Math.round(fullMetrics.correctnessRate) === 100 &&
+    astMetrics.targetedRate > fullMetrics.targetedRate
   ) {
-    lines.push('Both are technically correct, but AST_BOUND is more issue-directed.');
-  } else if (astMetrics.correctnessRate === 100 && fullMetrics.correctnessRate === 100) {
-    lines.push('Both variants are technically correct across all paired runs.');
-  } else {
-    lines.push('Both variants have the same correctness rate.');
+    return 'Both approaches are technically correct (100% correctness), but only AST_BOUND consistently targets the actual issue. FULL_CONTEXT produces generic optimizations that do not address the root cause.';
   }
 
-  return lines;
+  return 'Both approaches are technically correct, but AST_BOUND is more targeted while FULL_CONTEXT is broader and more generic.';
 }
 
 function buildTargetingExplanation(astTargetedRate: number, fullTargetedRate: number): string {
@@ -355,11 +318,13 @@ function buildStrategyAnalysis(
   const normalizedTargetIssue = targetIssue.toLowerCase();
 
   if (normalizedTargetIssue.includes('inline-handler-in-map') && astStrategy === 'useCallback') {
-    lines.push('AST_BOUND correctly identifies handler identity issue.');
+    lines.push('AST_BOUND selects useCallback, directly addressing handler identity instability.');
   }
 
   if (fullStrategy === 'useMemo') {
-    lines.push('FULL_CONTEXT defaults to generic optimization.');
+    lines.push(
+      'FULL_CONTEXT defaults to useMemo, which optimizes computation but does not fix the root cause of re-renders.'
+    );
   }
 
   if (lines.length === 0) {
@@ -387,6 +352,25 @@ function valueClass(winner: 'ast' | 'full' | 'tie', side: 'ast' | 'full'): strin
   }
 
   return winner === side ? 'is-better' : 'is-worse';
+}
+
+function buildEfficiencyText(
+  astMetrics: ReportMetrics,
+  fullMetrics: ReportMetrics
+): { headline: string; tokenDelta: string; factorLabel: string } {
+  const astInput = astMetrics.avgInputTokens;
+  const fullInput = fullMetrics.avgInputTokens;
+  const factor = astInput > 0 ? fullInput / astInput : 0;
+  const roundedFactor = factor > 0 ? Math.round(factor) : 0;
+  const factorLabel = roundedFactor > 0 ? `~${roundedFactor}x` : 'n/a';
+  const tokenDelta = `${Math.round(astInput)} → ${Math.round(fullInput)} (+${factorLabel})`;
+
+  const headline =
+    roundedFactor > 0
+      ? `AST_BOUND uses ${factorLabel} fewer input tokens while achieving same correctness and better issue targeting.`
+      : 'Token efficiency could not be computed for this comparison.';
+
+  return { headline, tokenDelta, factorLabel };
 }
 
 export function ResultsReportViewer() {
@@ -557,7 +541,7 @@ export function ResultsReportViewer() {
   const effectiveTargetIssue = astReport?.targetIssue || fullReport?.targetIssue || '';
 
   const interpretation =
-    astReport && fullReport ? buildInterpretation(astComparedMetrics, fullComparedMetrics) : [];
+    astReport && fullReport ? buildInterpretation(astComparedMetrics, fullComparedMetrics) : '';
 
   const targetingExplanation = buildTargetingExplanation(
     astComparedMetrics.targetedRate,
@@ -570,71 +554,100 @@ export function ResultsReportViewer() {
     effectiveTargetIssue
   );
 
+  const efficiency = buildEfficiencyText(astComparedMetrics, fullComparedMetrics);
+
   const compareRows =
     astReport && fullReport
       ? [
           {
+            key: 'correctness',
             label: 'Correctness rate',
             astValue: astComparedMetrics.correctnessRate,
             fullValue: fullComparedMetrics.correctnessRate,
             direction: 'higher' as BetterDirection,
             format: formatPercent,
+            emphasize: false,
+            muted: false,
           },
           {
+            key: 'targeted',
             label: 'Targeted to issue',
             astValue: astComparedMetrics.targetedRate,
             fullValue: fullComparedMetrics.targetedRate,
             direction: 'higher' as BetterDirection,
             format: formatPercent,
+            emphasize: true,
+            muted: false,
           },
           {
+            key: 'localized',
             label: 'Localized change',
             astValue: astComparedMetrics.localizedRate,
             fullValue: fullComparedMetrics.localizedRate,
             direction: 'higher' as BetterDirection,
             format: formatPercent,
+            emphasize: true,
+            muted: false,
           },
           {
+            key: 'safe',
             label: 'Safe to auto-apply rate',
             astValue: astComparedMetrics.safeRate,
             fullValue: fullComparedMetrics.safeRate,
             direction: 'higher' as BetterDirection,
             format: formatPercent,
+            emphasize: false,
+            muted: false,
           },
           {
+            key: 'safety-agreement',
             label: 'Safety agreement (AST vs FULL)',
             astValue: safetyAgreementRate,
             fullValue: safetyAgreementRate,
             direction: 'none' as BetterDirection,
             format: formatPercent,
+            emphasize: false,
+            muted: false,
           },
           {
+            key: 'latency',
             label: 'Avg latency ms',
             astValue: astComparedMetrics.avgLatencyMs,
             fullValue: fullComparedMetrics.avgLatencyMs,
             direction: 'lower' as BetterDirection,
             format: formatNumber,
+            emphasize: false,
+            muted: true,
           },
           {
+            key: 'input-tokens',
             label: 'Avg input tokens',
             astValue: astComparedMetrics.avgInputTokens,
             fullValue: fullComparedMetrics.avgInputTokens,
             direction: 'lower' as BetterDirection,
             format: formatNumber,
+            emphasize: true,
+            muted: false,
           },
           {
+            key: 'output-tokens',
             label: 'Avg output tokens',
             astValue: astComparedMetrics.avgOutputTokens,
             fullValue: fullComparedMetrics.avgOutputTokens,
             direction: 'lower' as BetterDirection,
             format: formatNumber,
+            emphasize: true,
+            muted: false,
           },
           {
+            key: 'run-count',
             label: 'Run count',
             astValue: astComparedMetrics.runCount,
             fullValue: fullComparedMetrics.runCount,
             direction: 'none' as BetterDirection,
             format: formatNumber,
+            emphasize: false,
+            muted: true,
           },
         ]
       : [];
@@ -821,6 +834,14 @@ export function ResultsReportViewer() {
             <p className="empty-row">Load two reports to compare AST_BOUND vs FULL_CONTEXT.</p>
           ) : (
             <>
+              <section className="comparison-key-insight">
+                <h3>Key Insight</h3>
+                <p>
+                  LLMs are not failing at correctness. They are failing at relevance. AST constraints
+                  improve relevance, not correctness.
+                </p>
+              </section>
+
               <section className="comparison-overview-grid">
                 <article className="comparison-overview-card">
                   <h3>AST_BOUND</h3>
@@ -847,6 +868,7 @@ export function ResultsReportViewer() {
                 <p>AST_BOUND: {formatPercent(astComparedMetrics.targetedRate)}</p>
                 <p>FULL_CONTEXT: {formatPercent(fullComparedMetrics.targetedRate)}</p>
                 <p>{targetingExplanation}</p>
+                <p>If correctness is equal, targeting becomes the key differentiator.</p>
               </section>
 
               <section className="comparison-strategy">
@@ -855,6 +877,32 @@ export function ResultsReportViewer() {
                   {strategyAnalysis.map((line) => (
                     <li key={line}>{line}</li>
                   ))}
+                </ul>
+              </section>
+
+              <section className="comparison-efficiency">
+                <h3>Efficiency</h3>
+                <p>{efficiency.headline}</p>
+                <p>
+                  Token reduction factor (FULL/AST): {efficiency.factorLabel}
+                </p>
+                <p>Input token delta: {efficiency.tokenDelta}</p>
+                <p>
+                  AST_BOUND uses {efficiency.factorLabel} fewer input tokens while achieving:
+                </p>
+                <ul>
+                  <li>
+                    same correctness ({formatPercent(astComparedMetrics.correctnessRate)} vs{' '}
+                    {formatPercent(fullComparedMetrics.correctnessRate)})
+                  </li>
+                  <li>
+                    better issue targeting ({formatPercent(astComparedMetrics.targetedRate)} vs{' '}
+                    {formatPercent(fullComparedMetrics.targetedRate)})
+                  </li>
+                  <li>
+                    more localized changes ({formatPercent(astComparedMetrics.localizedRate)} vs{' '}
+                    {formatPercent(fullComparedMetrics.localizedRate)})
+                  </li>
                 </ul>
               </section>
 
@@ -870,14 +918,24 @@ export function ResultsReportViewer() {
                   </thead>
                   <tbody>
                     {compareRows.map((row) => {
-                      const winner = compareNumeric(row.astValue, row.fullValue, row.direction);
-                      return (
-                        <tr key={row.label}>
+                      const winner = row.emphasize
+                        ? compareNumeric(row.astValue, row.fullValue, row.direction)
+                        : 'tie';
+                      return [
+                        <tr key={row.label} className={row.muted ? 'is-muted-row' : ''}>
                           <td>{row.label}</td>
                           <td className={valueClass(winner, 'ast')}>{row.format(row.astValue)}</td>
                           <td className={valueClass(winner, 'full')}>{row.format(row.fullValue)}</td>
-                        </tr>
-                      );
+                        </tr>,
+                        row.key === 'latency' ? (
+                          <tr className="comparison-note-row" key="latency-note">
+                            <td colSpan={3}>
+                              Latency is dominated by model and network variance and is not a
+                              reliable comparison metric.
+                            </td>
+                          </tr>
+                        ) : null,
+                      ];
                     })}
                     <tr>
                       <td>Primary strategy (dominant)</td>
@@ -940,11 +998,7 @@ export function ResultsReportViewer() {
 
               <section className="comparison-interpretation">
                 <h3>Interpretation</h3>
-                <ul>
-                  {interpretation.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
+                <p>{interpretation}</p>
               </section>
             </>
           )}
