@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Background,
   Controls,
@@ -26,12 +26,6 @@ import {
   type ComponentId,
   type TrackerSnapshot,
 } from './instrumentation/trackerStore'
-import {
-  useRenderTracker,
-  useTrackedCallback,
-  useTrackedEffect,
-  useTrackedMemo,
-} from './instrumentation/hookTrackers'
 import {
   buildLikelyCauses,
   formatDependencySummary,
@@ -137,21 +131,10 @@ const initialNodes = buildInitialNodes()
 const initialEdges = buildInitialEdges()
 
 const ProfiledNode = (props: NodeProps<FlowNode>) => {
-  const { id, data, selected, dragging } = props
-
-  // Diagnostic instrumentation: track why node components rerender during graph interactions.
-  useRenderTracker('GRAPH_NODE', {
-    id,
-    data,
-    selected,
-    dragging,
-  })
+  const { data, selected } = props
 
   // Diagnostic instrumentation: measure whether this memo actually avoids recomputation.
-  const score = useTrackedMemo(
-    'GRAPH_NODE',
-    'scoreMemo',
-    () => {
+  const score = useMemo(() => {
       const tagWeight = data.tags.reduce((sum, tag) => sum + tag.length, 0)
       return Math.round(
         data.complexity * 0.6 +
@@ -165,10 +148,7 @@ const ProfiledNode = (props: NodeProps<FlowNode>) => {
   )
 
   // Diagnostic instrumentation: capture effect reruns and dependency churn in node-level effects.
-  useTrackedEffect(
-    'GRAPH_NODE',
-    'selectionEffect',
-    () => undefined,
+  useEffect(() => undefined,
     [selected, data.liveHint, data.tags],
   )
 
@@ -197,18 +177,7 @@ type DetailsPanelProps = {
 }
 
 const DetailsPanel = ({ selectedNode, viewport, dragSample, hotNodeIds }: DetailsPanelProps) => {
-  // Diagnostic instrumentation: record panel rerenders and the prop changes that caused them.
-  useRenderTracker('DETAILS_PANEL', {
-    selectedNode,
-    viewport,
-    dragSample,
-    hotNodeIds,
-  })
-
-  const insightRows = useTrackedMemo(
-    'DETAILS_PANEL',
-    'insightRowsMemo',
-    () => {
+  const insightRows = useMemo(() => {
       if (!selectedNode) {
         return []
       }
@@ -229,10 +198,7 @@ const DetailsPanel = ({ selectedNode, viewport, dragSample, hotNodeIds }: Detail
   const [effectTrail, setEffectTrail] = useState<string[]>([])
 
   // Diagnostic instrumentation: track panel effect churn to separate semantic updates from ref churn.
-  useTrackedEffect(
-    'DETAILS_PANEL',
-    'effectTrailSync',
-    () => {
+  useEffect(() => {
       if (!selectedNode) {
         return
       }
@@ -795,10 +761,7 @@ function App() {
     performReset('mode-switch', nextMode)
   }
 
-  const runtimeNodes = useTrackedMemo(
-    'APP_ROOT',
-    'runtimeNodesMemo',
-    () => {
+  const runtimeNodes = useMemo(() => {
       const viewportBucket = Math.round(viewport.zoom * 10)
       const sharedDragPulse = dragSample.tick % 11
 
@@ -822,10 +785,7 @@ function App() {
   )
 
   // Diagnostic instrumentation: check whether derived root memos are invalidating too often.
-  const hotNodeIds = useTrackedMemo(
-    'APP_ROOT',
-    'hotNodeIdsMemo',
-    () => {
+  const hotNodeIds = useMemo(() => {
       return runtimeNodes
         .filter((node) => node.data.complexity + node.data.liveHint.viewportBucket > 70)
         .map((node) => node.id)
@@ -833,17 +793,11 @@ function App() {
     [runtimeNodes, viewport, dragSample],
   )
 
-  const selectedNode = useTrackedMemo(
-    'APP_ROOT',
-    'selectedNodeMemo',
-    () => runtimeNodes.find((node) => node.id === selectedNodeId) ?? null,
+  const selectedNode = useMemo(() => runtimeNodes.find((node) => node.id === selectedNodeId) ?? null,
     [runtimeNodes, selectedNodeId, viewport],
   )
 
-  const trackedEdges = useTrackedMemo(
-    'APP_ROOT',
-    'trackedEdgesMemo',
-    () => {
+  const trackedEdges = useMemo(() => {
       return edges.map((edge) => ({
         ...edge,
         animated: Boolean(selectedNodeId && edge.source === selectedNodeId),
@@ -856,10 +810,7 @@ function App() {
     [edges, selectedNodeId, viewport],
   )
 
-  useTrackedEffect(
-    'APP_ROOT',
-    'selectedNodeEdgeTouchEffect',
-    () => {
+  useEffect(() => {
       if (!selectedNodeId) {
         return
       }
@@ -891,10 +842,7 @@ function App() {
   }, [])
 
   // Diagnostic instrumentation: track callback identity churn for event handlers.
-  const handleNodeClick = useTrackedCallback(
-    'APP_ROOT',
-    'handleNodeClickCallback',
-    (_event: React.MouseEvent, node: FlowNode) => {
+  const handleNodeClick = useCallback((_event: React.MouseEvent, node: FlowNode) => {
       startInteraction('SELECT_NODE')
       setSelectedNodeId(node.id)
 
@@ -909,19 +857,13 @@ function App() {
     [viewport, dragSample],
   )
 
-  const handleNodeDragStart = useTrackedCallback(
-    'APP_ROOT',
-    'handleNodeDragStartCallback',
-    () => {
+  const handleNodeDragStart = useCallback(() => {
       startInteraction('DRAG_NODE')
     },
     [selectedNodeId],
   )
 
-  const handleNodeDrag = useTrackedCallback(
-    'APP_ROOT',
-    'handleNodeDragCallback',
-    (_event: React.MouseEvent, node: FlowNode) => {
+  const handleNodeDrag = useCallback((_event: React.MouseEvent, node: FlowNode) => {
       setDragSample((current) => ({
         nodeId: node.id,
         x: node.position.x,
@@ -932,46 +874,31 @@ function App() {
     [viewport, selectedNodeId],
   )
 
-  const handleNodeDragStop = useTrackedCallback(
-    'APP_ROOT',
-    'handleNodeDragStopCallback',
-    () => {
+  const handleNodeDragStop = useCallback(() => {
       window.setTimeout(() => endInteraction('DRAG_NODE'), 0)
     },
     [dragSample],
   )
 
-  const handleMoveStart = useTrackedCallback(
-    'APP_ROOT',
-    'handleMoveStartCallback',
-    () => {
+  const handleMoveStart = useCallback(() => {
       startInteraction('PAN_CANVAS')
     },
     [selectedNodeId],
   )
 
-  const handleMove = useTrackedCallback(
-    'APP_ROOT',
-    'handleMoveCallback',
-    (_event: any, nextViewport: Viewport) => {
+  const handleMove = useCallback((_event: any, nextViewport: Viewport) => {
       setViewport(nextViewport)
     },
     [dragSample],
   )
 
-  const handleMoveEnd = useTrackedCallback(
-    'APP_ROOT',
-    'handleMoveEndCallback',
-    () => {
+  const handleMoveEnd = useCallback(() => {
       window.setTimeout(() => endInteraction('PAN_CANVAS'), 0)
     },
     [selectedNodeId],
   )
 
-  const nodeTypes = useTrackedMemo(
-    'APP_ROOT',
-    'nodeTypesMemo',
-    () => ({
+  const nodeTypes = useMemo(() => ({
       profiled: ProfiledNode,
     }),
     [viewport],
@@ -983,23 +910,6 @@ function App() {
     proOptions: { hideAttribution: true },
   }
 
-  useRenderTracker('APP_ROOT', {
-    nodes,
-    edges,
-    selectedNodeId,
-    viewport,
-    dragSample,
-    runtimeNodes,
-    trackedEdges,
-    hotNodeIds,
-    selectedNode,
-    handleNodeClick,
-    handleNodeDrag,
-    handleMove,
-    nodeTypes,
-    unstableFlowOptions,
-  })
-
   return (
     <div className="app-shell">
       <header>
@@ -1007,6 +917,7 @@ function App() {
         <p>
           Tiny PoC for measuring how much work a simple interaction can trigger in a React + React Flow app.
         </p>
+        {import.meta.env.VITE_ENABLE_BABEL_INSTRUMENTATION === 'true' && (
         <div className="mode-switch">
           <span>Implementation mode:</span>
           <button
@@ -1026,7 +937,7 @@ function App() {
           <span className="subtle mode-note">
             Tracker is unchanged across both modes. Use Reset + same interactions for fair comparison.
           </span>
-        </div>
+        </div>)}
       </header>
 
       <div className="layout">
@@ -1056,22 +967,24 @@ function App() {
           </ReactFlow>
         </main>
 
-        <aside className="side-panels">
-          <DetailsPanel
-            selectedNode={selectedNode}
-            viewport={viewport}
-            dragSample={dragSample}
-            hotNodeIds={hotNodeIds}
-          />
-          <DebugPanel
-            mode={mode}
-            resetVersion={resetVersion}
-            lastResetReason={lastResetReason}
-            modeSwitchCount={modeSwitchCount}
-            modeEntryResetVersion={modeEntryResetVersion}
-            onRequestReset={() => performReset('manual', mode)}
-          />
-        </aside>
+        {import.meta.env.VITE_ENABLE_BABEL_INSTRUMENTATION === 'true' && (
+          <aside className="side-panels">
+            <DetailsPanel
+              selectedNode={selectedNode}
+              viewport={viewport}
+              dragSample={dragSample}
+              hotNodeIds={hotNodeIds}
+            />
+            <DebugPanel
+              mode={mode}
+              resetVersion={resetVersion}
+              lastResetReason={lastResetReason}
+              modeSwitchCount={modeSwitchCount}
+              modeEntryResetVersion={modeEntryResetVersion}
+              onRequestReset={() => performReset('manual', mode)}
+            />
+          </aside>
+        )}
       </div>
     </div>
   )

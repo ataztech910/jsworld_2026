@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The New Frontend Stack — JSWorld 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap');
+
+:root {
+  --bg:#080d18;--card:#0f1928;--border:#1a2e45;
+  --accent:#00d8ff;--orange:#ff6b35;--green:#00e5a0;--red:#ff3a3a;
+  --white:#f0f4f8;--dim:#5a6a80;
+  --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+}
+body.light {
+  --bg:#f2f4f8;--card:#ffffff;--border:#d0d8e8;
+  --accent:#0077cc;--orange:#c94d0e;--green:#0a7a4e;--red:#b81a1a;
+  --white:#0d1421;--dim:#6b7a90;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--white);font-family:var(--sans);overflow:hidden;transition:background .3s,color .3s}
+
+/* DECK */
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:2.75rem 4.5rem;opacity:0;pointer-events:none;transition:opacity .35s,transform .35s;transform:translateX(32px)}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0)}
+.slide.out{opacity:0;transform:translateX(-32px)}
+
+/* NAV */
+#nav{position:fixed;bottom:1.5rem;right:1.75rem;display:flex;gap:.5rem;align-items:center;z-index:100}
+.nb{background:var(--card);border:1px solid var(--border);color:var(--white);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.nb:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+#dots{display:flex;gap:4px;align-items:center}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--dim);transition:all .3s;cursor:pointer}
+.dot.active{background:var(--accent);width:16px;border-radius:3px}
+#snum{font-family:var(--mono);font-size:.68rem;color:var(--dim);min-width:2.2rem;text-align:center}
+#hint{position:fixed;bottom:1.5rem;left:1.75rem;font-family:var(--mono);font-size:.62rem;color:var(--dim)}
+#hint kbd{background:var(--card);border:1px solid var(--border);padding:1px 5px;border-radius:3px}
+
+/* SHARED */
+.tag{font-family:var(--mono);font-size:.62rem;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+.tag::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;display:inline-block}
+.tag.red{color:var(--red)}.tag.red::before{background:var(--red)}
+.tag.orange{color:var(--orange)}.tag.orange::before{background:var(--orange)}
+.tag.green{color:var(--green)}.tag.green::before{background:var(--green)}
+h2.slide-title{font-size:1.7rem;font-weight:700;margin-bottom:1.25rem;line-height:1.2}
+
+/* DATA TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:.82rem}
+.dt th{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;color:var(--dim);text-align:left;padding:.45rem .75rem;border-bottom:1px solid var(--border);text-transform:uppercase}
+.dt td{padding:.55rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.dt tr:last-child td{border-bottom:none}
+.dt tr.hi-bad{background:rgba(255,58,58,.07)}
+.dt tr.hi-good{background:rgba(0,229,160,.07)}
+.dt tr.hi-key{background:rgba(255,107,53,.1);border-left:3px solid var(--orange)}
+.dt tr.hi-warn{background:rgba(255,107,53,.06)}
+.sh{color:var(--green);font-weight:700;font-family:var(--mono);font-size:.8rem}
+.sl{color:var(--red);font-weight:700;font-family:var(--mono);font-size:.8rem}
+.sm{color:var(--orange);font-weight:700;font-family:var(--mono);font-size:.8rem}
+.bar{display:inline-block;height:5px;border-radius:3px;vertical-align:middle;margin-right:5px}
+.mtag{font-family:var(--mono);font-size:.7rem;padding:2px 6px;border-radius:3px}
+.ml{background:rgba(0,216,255,.1);color:var(--accent)}
+.mb{background:rgba(255,107,53,.1);color:var(--orange)}
+.callout{background:var(--card);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:.7rem 1rem;margin-top:.9rem;font-size:.82rem;font-style:italic;line-height:1.5}
+.callout.green{border-color:var(--green)}
+.callout.red{border-color:var(--red)}
+
+/* YAML / CODE */
+.ybox{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;font-family:var(--mono);font-size:.75rem;line-height:1.7}
+.yk{color:var(--accent)}.yv{color:var(--green)}.yc{color:var(--dim);font-style:italic}
+.tbox{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;font-size:.88rem;line-height:1.7;color:var(--dim)}
+.tnoise{color:var(--red);text-decoration:underline;text-decoration-color:rgba(255,58,58,.4)}
+
+/* S1 TITLE */
+#s1{justify-content:center;background:radial-gradient(ellipse 60% 50% at 80% 40%,rgba(0,216,255,.06) 0%,transparent 60%),radial-gradient(ellipse 40% 60% at 20% 80%,rgba(255,107,53,.05) 0%,transparent 50%),var(--bg)}
+.ctag{font-family:var(--mono);font-size:.68rem;color:var(--accent);letter-spacing:.25em;border:1px solid var(--accent);padding:4px 14px;display:inline-block;margin-bottom:2rem}
+#s1 h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;line-height:1.05;margin-bottom:1.25rem}
+#s1 h1 span{color:var(--accent);display:block}
+#s1 .sub{font-size:1.1rem;color:var(--dim);font-style:italic;margin-bottom:2.5rem}
+#s1 .tline{font-family:var(--mono);font-size:.82rem;color:var(--orange);border-top:1px solid var(--border);padding-top:1.25rem;max-width:560px}
+
+/* S2 ABOUT */
+#s2{justify-content:center}
+.ag{display:grid;grid-template-columns:1.2fr 1fr;gap:2rem;margin-top:1rem}
+#s2 h2{font-size:1.9rem;font-weight:800;margin-bottom:.25rem}
+.role{font-size:.9rem;color:var(--accent);font-family:var(--mono);margin-bottom:.2rem}
+.co{font-size:.82rem;color:var(--dim);margin-bottom:1.25rem}
+.dtb{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.1rem;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:1rem}
+.dti{width:34px;height:34px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.75rem;color:var(--bg);font-family:var(--mono);flex-shrink:0}
+.dtt strong{display:block;font-size:.88rem}.dtt span{font-size:.75rem;color:var(--dim)}
+.abio{font-size:.85rem;color:var(--dim);line-height:1.65;margin-bottom:1rem}
+.atag{display:inline-block;font-family:var(--mono);font-size:.65rem;background:var(--card);border:1px solid var(--border);padding:3px 9px;border-radius:4px;margin:2px;color:var(--accent)}
+.aright{display:flex;flex-direction:column;gap:.9rem}
+.sbox{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.1rem;text-align:center}
+.snum{font-size:2.2rem;font-weight:800;color:var(--accent);display:block}
+.slbl{font-size:.75rem;color:var(--dim);margin-top:.2rem}
+.wbox{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:.9rem 1.1rem;font-size:.85rem;line-height:1.6}
+
+/* S3 SETUP */
+#s3 .setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:.75rem}
+.setup-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.1rem}
+.setup-box h4{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;margin-bottom:.75rem}
+.setup-box ul{list-style:none}
+.setup-box li{padding:.3rem 0;font-size:.85rem;color:var(--white);display:flex;align-items:center;gap:.5rem}
+.setup-box li::before{content:'→';color:var(--accent);font-family:var(--mono);font-size:.7rem}
+.method-note{margin-top:1rem;padding:.75rem 1rem;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:0 8px 8px 0;font-size:.82rem;color:var(--dim);font-style:italic}
+
+/* S7 T4 DASHBOARD */
+.noise-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:.75rem 0}
+.noise-stat{display:flex;gap:1.5rem;margin-top:.75rem}
+.nstat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.9rem 1.25rem;flex:1;text-align:center}
+.nnum{font-size:1.8rem;font-weight:800;display:block}
+.nlbl{font-size:.72rem;color:var(--dim);margin-top:.2rem}
+
+/* S11 INSIGHT */
+#s11{justify-content:center}
+.igap{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;margin:1.5rem 0}
+.ibox{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.5rem;text-align:center}
+.ibox h3{font-size:1rem;font-weight:700;margin-bottom:.5rem}
+.ibox p{font-size:.8rem;color:var(--dim);line-height:1.5}
+.ibox .ex{font-family:var(--mono);font-size:.72rem;color:var(--accent);margin:.5rem 0;line-height:1.6}
+.iarrow{text-align:center}
+.iarrow .sym{font-size:2.5rem;color:var(--red);font-weight:700}
+.iarrow .lbl{font-family:var(--mono);font-size:.6rem;color:var(--red);letter-spacing:.08em;text-transform:uppercase;margin-top:.3rem}
+.iquote{font-size:clamp(1.2rem,2.2vw,1.65rem);font-weight:800;text-align:center;line-height:1.3;padding:1.5rem 2rem;background:var(--card);border-radius:8px}
+.iquote span{color:var(--accent)}
+
+/* S12 SIFY */
+#s12{justify-content:center}
+.stitle{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;text-align:center;letter-spacing:.06em;margin-bottom:.3rem}
+.ssub{text-align:center;color:var(--dim);font-size:.88rem;margin-bottom:1.25rem;font-style:italic}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.1rem}
+.sl2{font-size:2.2rem;font-weight:800;line-height:1;margin-bottom:.4rem;color:var(--accent)}
+.sc:nth-child(2) .sl2{color:var(--orange)}
+.sc:nth-child(3) .sl2{color:var(--green)}
+.sc:nth-child(4) .sl2{color:var(--red)}
+.sc h4{font-size:.92rem;font-weight:700;margin-bottom:.3rem}
+.sc p{font-size:.78rem;color:var(--dim);line-height:1.5}
+.sc .proof{font-family:var(--mono);font-size:.65rem;color:var(--dim);margin-top:.5rem;opacity:.7}
+
+/* S13 ANTIPATTERNS */
+.apgrid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.75rem}
+.apc{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.1rem}
+.apc.worst{border-color:var(--red);border-left:3px solid var(--red)}
+.apn{font-size:.95rem;font-weight:700;margin-bottom:.25rem;color:var(--orange)}
+.apc.worst .apn{color:var(--red)}
+.app{font-family:var(--mono);font-size:.6rem;color:var(--dim);margin-bottom:.4rem;letter-spacing:.08em}
+.apd{font-size:.78rem;color:var(--dim);line-height:1.5}
+
+/* S14 CLOSE */
+#s14{justify-content:center;text-align:center}
+.fhead{font-size:clamp(1.4rem,3vw,2.2rem);font-weight:800;line-height:1.3;margin-bottom:.4rem}
+.fsub{color:var(--dim);font-size:.9rem;margin-bottom:2rem}
+.facc{color:var(--accent)}
+.sfinal{font-size:1.4rem;font-weight:800;letter-spacing:.08em;margin-bottom:1.5rem}
+.qrow{display:flex;gap:2rem;justify-content:center;margin-top:1.5rem}
+.qi{display:flex;flex-direction:column;align-items:center;gap:.6rem}
+.qb{width:110px;height:110px;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:8px}
+.qb svg{width:100%;height:100%}
+.ql{font-family:var(--mono);font-size:.65rem;color:var(--dim);text-align:center;line-height:1.4}
+.qu{font-family:var(--mono);font-size:.7rem;color:var(--accent)}
+</style>
+</head>
+<body>
+
+<!-- S1 TITLE -->
+<div class="slide active" id="s1">
+  <div class="ctag">JSWorld 2026</div>
+  <h1>The New<br><span>Frontend Stack</span></h1>
+  <p class="sub">Humans, AI, and Prompts</p>
+  <div class="tline">"We are writing prompts, but debugging like it's 2015"</div>
+</div>
+
+<!-- S2 ABOUT -->
+<div class="slide" id="s2">
+  <div class="tag">About me</div>
+  <div class="ag">
+    <div>
+      <h2>Andrei</h2>
+      <div class="role">Frontend Engineer · Researcher</div>
+      <div class="co">Dynatrace · promptfarm.dev</div>
+      <div class="dtb">
+        <div class="dti">DT</div>
+        <div class="dtt"><strong>Dynatrace</strong><span>Observability, analytics &amp; data — this is our DNA</span></div>
+      </div>
+      <p class="abio">At Dynatrace we live by data. Every claim is a metric. Every hypothesis is a test. That's the lens I brought to this research — 7 controlled experiments, 5 models, deterministic scoring.</p>
+      <div>
+        <span class="atag">React</span><span class="atag">TypeScript</span><span class="atag">AI tooling</span><span class="atag">Observability</span><span class="atag">Prompt engineering</span>
+      </div>
+    </div>
+    <div class="aright">
+      <div class="sbox"><span class="snum">7</span><div class="slbl">controlled experiments</div></div>
+      <div class="sbox"><span class="snum" style="color:var(--orange)">5×</span><div class="slbl">improvement from format alone</div></div>
+      <div class="wbox"><strong style="display:block;margin-bottom:.3rem">Why this talk</strong>You're already using AI. The question is: are you in control of what it generates?</div>
+    </div>
+  </div>
+</div>
+
+<!-- S3 SETUP -->
+<div class="slide" id="s3">
+  <div class="tag">The Experiment</div>
+  <h2 class="slide-title">How we tested — methodology first</h2>
+  <div class="setup-grid">
+    <div class="setup-box">
+      <h4>What we tested</h4>
+      <ul>
+        <li>React invoice form with 10 predefined business rules</li>
+        <li>Same rules, same models, different prompt formats</li>
+        <li>Rules: VAT logic, blocked countries, retry policy, analytics, autosave…</li>
+        <li>Judge: deterministic TypeScript — zero AI in scoring</li>
+      </ul>
+    </div>
+    <div class="setup-box">
+      <h4>Models tested</h4>
+      <ul>
+        <li><span class="mtag ml">mistral 7b instruct</span> — local, free</li>
+        <li><span class="mtag ml">codeqwen 7b</span> — local, code-focused</li>
+        <li><span class="mtag mb">gemini 2.5 flash</span> — commercial</li>
+        <li><span class="mtag mb">claude sonnet</span> — commercial</li>
+        <li>Dashboard: text noise analysis (T4)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="method-note">Score = how many of the 10 business rules appeared correctly in the output. Like unit tests — explicit assertions, deterministic check.</div>
+</div>
+
+<!-- S4 T1 -->
+<div class="slide" id="s4">
+  <div class="tag">Test 1</div>
+  <h2 class="slide-title">Vague text vs structured YAML spec</h2>
+  <div class="results-wrap" style="background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:.9rem">
+    <table class="dt">
+      <thead><tr><th>Model</th><th>Prompt format</th><th>Rules correct (out of 10)</th><th>Assumed</th></tr></thead>
+      <tbody>
+        <tr class="hi-bad"><td><span class="mtag ml">mistral</span></td><td>vague text</td><td><div class="bar" style="width:30px;background:var(--red)"></div><span class="sl">3/10</span></td><td><span style="color:var(--orange);font-family:var(--mono);font-size:.75rem">2</span></td></tr>
+        <tr class="hi-good"><td><span class="mtag ml">mistral</span></td><td>structured YAML</td><td><div class="bar" style="width:90px;background:var(--green)"></div><span class="sh">9/10</span></td><td><span class="sh" style="font-size:.75rem">2</span></td></tr>
+        <tr class="hi-bad"><td><span class="mtag ml">codeqwen</span></td><td>vague text</td><td><div class="bar" style="width:20px;background:var(--red)"></div><span class="sl">2/10</span></td><td><span class="sh" style="font-size:.75rem">0</span></td></tr>
+        <tr class="hi-good"><td><span class="mtag ml">codeqwen</span></td><td>structured YAML</td><td><div class="bar" style="width:90px;background:var(--green)"></div><span class="sh">9/10</span></td><td><span class="sh" style="font-size:.75rem">0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">Same model. Same task. Same judge. <strong>3–4× difference from format alone.</strong> The model didn't change — the structure did.</div>
+</div>
+
+<!-- S5 T2 -->
+<div class="slide" id="s5">
+  <div class="tag orange">Test 2</div>
+  <h2 class="slide-title">Big models on vague text — does smarter help?</h2>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:.9rem">
+    <table class="dt">
+      <thead><tr><th>Model</th><th>Type</th><th>Rules on vague text</th><th>Assumed</th><th>Observation</th></tr></thead>
+      <tbody>
+        <tr class="hi-bad"><td><span class="mtag ml">mistral</span></td><td style="font-size:.72rem;color:var(--dim)">small/local</td><td><div class="bar" style="width:30px;background:var(--red)"></div><span class="sl">3/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--orange)">2</td><td style="font-size:.75rem;color:var(--dim)">fails visibly</td></tr>
+        <tr class="hi-bad"><td><span class="mtag ml">codeqwen</span></td><td style="font-size:.72rem;color:var(--dim)">small/local</td><td><div class="bar" style="width:20px;background:var(--red)"></div><span class="sl">2/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--green)">0</td><td style="font-size:.75rem;color:var(--dim)">fails visibly</td></tr>
+        <tr class="hi-warn"><td><span class="mtag mb">gemini flash</span></td><td style="font-size:.72rem;color:var(--orange)">commercial</td><td><div class="bar" style="width:40px;background:var(--orange)"></div><span class="sm">4/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--orange)">6 ⚠</td><td style="font-size:.75rem;color:var(--dim)">guesses more, hides more</td></tr>
+        <tr class="hi-key"><td><span class="mtag mb">claude sonnet</span></td><td style="font-size:.72rem;color:var(--orange)">commercial</td><td><div class="bar" style="width:0px;background:var(--red)"></div><span class="sl">0/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--red)">10 !</td><td style="font-size:.75rem;color:var(--orange)">0/10 but listed all gaps</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout" style="border-color:var(--red)"><strong style="color:var(--red)">The paradox:</strong> Claude scored 0/10 — the most useful result. It said "I don't know these 10 things." Gemini guessed 4/10 silently. <strong>Visible failure is recoverable. Silent success is not.</strong></div>
+</div>
+
+<!-- S6 T3 -->
+<div class="slide" id="s6">
+  <div class="tag green">Test 3</div>
+  <h2 class="slide-title">Real YAML spec — does it work on any model?</h2>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:.9rem">
+    <table class="dt">
+      <thead><tr><th>Model</th><th>Type</th><th>Rules on structured YAML</th><th>Assumed</th></tr></thead>
+      <tbody>
+        <tr class="hi-good"><td><span class="mtag ml">mistral</span></td><td style="font-size:.72rem;color:var(--dim)">small/local</td><td><div class="bar" style="width:90px;background:var(--green)"></div><span class="sh">9/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--orange)">2</td></tr>
+        <tr class="hi-good"><td><span class="mtag ml">codeqwen</span></td><td style="font-size:.72rem;color:var(--dim)">small/local</td><td><div class="bar" style="width:90px;background:var(--green)"></div><span class="sh">9/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--green)">0</td></tr>
+        <tr class="hi-good"><td><span class="mtag mb">gemini flash</span></td><td style="font-size:.72rem;color:var(--orange)">commercial</td><td><div class="bar" style="width:100px;background:var(--green)"></div><span class="sh">10/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--orange)">4</td></tr>
+        <tr class="hi-good"><td><span class="mtag mb">claude sonnet</span></td><td style="font-size:.72rem;color:var(--orange)">commercial</td><td><div class="bar" style="width:100px;background:var(--green)"></div><span class="sh">10/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--orange)">5</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout green"><strong style="color:var(--green)">The spec equalizes all models.</strong> A free local model and an expensive commercial model produce equivalent results. Format matters more than model selection.</div>
+</div>
+
+<!-- S7 T4 DASHBOARD -->
+<div class="slide" id="s7">
+  <div class="tag">Test 4</div>
+  <h2 class="slide-title">Text vs YAML for nested structure — 39% noise</h2>
+  <div class="noise-grid">
+    <div>
+      <div style="font-family:var(--mono);font-size:.6rem;color:var(--dim);letter-spacing:.1em;margin-bottom:.5rem;text-transform:uppercase">Text prompt — 96 words</div>
+      <div class="tbox">
+        I need a dashboard <span class="tnoise">consisting of</span> a Header <span class="tnoise">which includes</span> Logo, Navigation and Menu. Logo <span class="tnoise">will have</span> links and Menu will have avatar and dropdowns. <span class="tnoise">Next there will be</span> a Sidebar <span class="tnoise">with</span> nav items <span class="tnoise">inside it</span>. <span class="tnoise">Also need to add</span> a collapse button. <span class="tnoise">Then</span> a Grid <span class="tnoise">consisting of</span> Stat Cards, Chart Cards and a Table <span class="tnoise">inside a card with</span> columns, rows and pagination.
+      </div>
+      <div style="margin-top:.5rem;font-size:.75rem;color:var(--red)">Underlined = structural noise. Carries zero information.</div>
+    </div>
+    <div>
+      <div style="font-family:var(--mono);font-size:.6rem;color:var(--dim);letter-spacing:.1em;margin-bottom:.5rem;text-transform:uppercase">YAML spec — 54 words</div>
+      <div class="ybox" style="font-size:.72rem">
+        <span class="yk">component:</span> <span class="yv">Dashboard</span><br><br>
+        <span class="yk">header:</span><br>
+        &nbsp;&nbsp;<span class="yk">logo:</span> <span class="yv">[src, href]</span><br>
+        &nbsp;&nbsp;<span class="yk">navigation:</span> <span class="yv">[label, href, active]</span><br>
+        &nbsp;&nbsp;<span class="yk">user_menu:</span> <span class="yv">[avatar, dropdown_items]</span><br>
+        <span class="yk">sidebar:</span><br>
+        &nbsp;&nbsp;<span class="yk">nav_item:</span> <span class="yv">[icon, label, active]</span><br>
+        &nbsp;&nbsp;<span class="yk">collapse_button:</span> <span class="yv">[collapsed]</span><br>
+        <span class="yk">grid:</span><br>
+        &nbsp;&nbsp;<span class="yk">stat_card:</span> <span class="yv">[title, value, trend, color]</span><br>
+        &nbsp;&nbsp;<span class="yk">chart_card:</span> <span class="yv">[title, type, data, legend]</span><br>
+        &nbsp;&nbsp;<span class="yk">table_card.columns:</span> <span class="yv">[label, key, sortable]</span>
+      </div>
+    </div>
+  </div>
+  <div class="noise-stat">
+    <div class="nstat"><span class="nnum" style="color:var(--red)">39%</span><div class="nlbl">of text words carry zero information</div></div>
+    <div class="nstat"><span class="nnum" style="color:var(--red)">4</span><div class="nlbl">ambiguities in text (0 in YAML)</div></div>
+    <div class="nstat"><span class="nnum" style="color:var(--green)">0%</span><div class="nlbl">structural noise in YAML</div></div>
+    <div class="nstat"><span class="nnum" style="color:var(--orange)">−44</span><div class="nlbl">fewer words, same information</div></div>
+  </div>
+</div>
+
+<!-- S8 T6 -->
+<div class="slide" id="s8">
+  <div class="tag red">Test 6</div>
+  <h2 class="slide-title">What if AI writes the spec? — Spec delegation</h2>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:.9rem">
+    <table class="dt">
+      <thead><tr><th>Chain</th><th>Rules correct</th><th>Tokens used</th><th>vs baseline</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:.78rem">vague → CodeQwen directly</td><td><div class="bar" style="width:20px;background:var(--red)"></div><span class="sl">1–2/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--green)">141</td><td style="font-size:.75rem;color:var(--dim)">baseline</td></tr>
+        <tr class="hi-bad"><td style="font-size:.78rem">vague → <strong>Mistral</strong> writes YAML → CodeQwen</td><td><div class="bar" style="width:0;background:var(--red)"></div><span class="sl">0/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--orange)">447–585</td><td style="font-size:.75rem;color:var(--red)">3–4× more expensive</td></tr>
+        <tr class="hi-bad"><td style="font-size:.78rem">vague → <strong>Gemini</strong> writes YAML → CodeQwen</td><td><div class="bar" style="width:20px;background:var(--red)"></div><span class="sl">2/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--red)">1149</td><td style="font-size:.75rem;color:var(--red)">8× more expensive</td></tr>
+        <tr class="hi-key"><td style="font-size:.78rem">vague → <strong>Claude</strong> writes YAML → CodeQwen</td><td><div class="bar" style="width:0;background:var(--red)"></div><span class="sl">0/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--red)">1306</td><td style="font-size:.75rem;color:var(--red)">9× more expensive ↑</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout red">The smarter the model — the more beautiful and expensive the spec it writes. <strong>Still zero of your business rules.</strong> Because <code style="color:var(--accent)">vat_blocked: [RU, BY]</code> doesn't exist anywhere outside your head.</div>
+</div>
+
+<!-- S9 T7 -->
+<div class="slide" id="s9">
+  <div class="tag green">Test 7</div>
+  <h2 class="slide-title">Do key names matter? — Format over syntax</h2>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:.9rem">
+    <table class="dt">
+      <thead><tr><th>Model</th><th>Type</th><th>Canonical keys</th><th>Renamed keys</th><th>Weird keys</th></tr></thead>
+      <tbody>
+        <tr class="hi-good"><td><span class="mtag ml">mistral</span></td><td style="font-size:.72rem;color:var(--dim)">local</td><td><span class="sh">9/10</span></td><td><span class="sh">9/10</span></td><td><span class="sh">9/10</span></td></tr>
+        <tr class="hi-good"><td><span class="mtag ml">codeqwen</span></td><td style="font-size:.72rem;color:var(--dim)">local</td><td><span class="sh">9/10</span></td><td><span class="sh">8/10</span></td><td><span class="sh">10/10</span></td></tr>
+        <tr class="hi-good"><td><span class="mtag mb">gemini flash</span></td><td style="font-size:.72rem;color:var(--orange)">commercial</td><td><span class="sh">10/10</span> <span style="font-size:.7rem;color:var(--dim)">assumed:2</span></td><td><span class="sh">10/10</span> <span style="font-size:.7rem;color:var(--dim)">assumed:3</span></td><td><span class="sh">10/10</span> <span style="font-size:.7rem;color:var(--dim)">assumed:2</span></td></tr>
+        <tr class="hi-good"><td><span class="mtag mb">claude sonnet</span></td><td style="font-size:.72rem;color:var(--orange)">commercial</td><td><span class="sh">10/10</span> <span style="font-size:.7rem;color:var(--dim)">assumed:5</span></td><td><span class="sh">10/10</span> <span style="font-size:.7rem;color:var(--dim)">assumed:4</span></td><td><span class="sh">10/10</span> <span style="font-size:.7rem;color:var(--dim)">assumed:5</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+    <div class="callout green" style="margin-top:0">All 4 models, all 3 key styles — <strong>consistent results</strong>. The model reads context and hierarchy, not key names. <code style="color:var(--accent)">frm</code> and <code style="color:var(--accent)">component</code> score identically.</div>
+    <div class="callout" style="margin-top:0;border-color:var(--accent)"><strong>Conclusion:</strong> You don't need a standard. You don't need a schema validator. Pick any format that makes your intent explicit — structure is sufficient.</div>
+  </div>
+</div>
+
+<!-- S10 T8 -->
+<div class="slide" id="s10">
+  <div class="tag orange">Test 8</div>
+  <h2 class="slide-title">YAML + comments vs pure YAML — assumed is your risk</h2>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:.9rem">
+    <table class="dt">
+      <thead><tr><th>Model</th><th>Type</th><th>Format</th><th>Score</th><th>Assumed (silent decisions)</th></tr></thead>
+      <tbody>
+        <tr class="hi-warn"><td><span class="mtag ml">mistral</span></td><td style="font-size:.72rem;color:var(--dim)">local</td><td>pure YAML</td><td><span class="sh">9/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--red)">10 ! guessed right — this time</td></tr>
+        <tr class="hi-good"><td><span class="mtag ml">mistral</span></td><td style="font-size:.72rem;color:var(--dim)">local</td><td>YAML + comments</td><td><span class="sh">9/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--green)">0 ✓ understood correctly</td></tr>
+        <tr class="hi-good"><td><span class="mtag ml">codeqwen</span></td><td style="font-size:.72rem;color:var(--dim)">local</td><td>pure YAML</td><td><span class="sh">9/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--green)">0 ✓ explicit output</td></tr>
+        <tr><td><span class="mtag mb">gemini flash</span></td><td style="font-size:.72rem;color:var(--orange)">commercial</td><td>pure YAML</td><td><span class="sh">10/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--orange)">5 — still made 5 silent decisions</td></tr>
+        <tr><td><span class="mtag mb">gemini flash</span></td><td style="font-size:.72rem;color:var(--orange)">commercial</td><td>YAML + comments</td><td><span class="sh">10/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--orange)">4 — slightly fewer</td></tr>
+        <tr class="hi-key"><td><span class="mtag mb">claude sonnet</span></td><td style="font-size:.72rem;color:var(--orange)">commercial</td><td>pure YAML</td><td><span class="sh">10/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--orange)">5 silent decisions</td></tr>
+        <tr class="hi-key"><td><span class="mtag mb">claude sonnet</span></td><td style="font-size:.72rem;color:var(--orange)">commercial</td><td>YAML + comments</td><td><span class="sh">10/10</span></td><td style="font-family:var(--mono);font-size:.75rem;color:var(--red)">7 ↑ more visible with comments</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+    <div class="callout" style="margin-top:0;border-color:var(--orange)">Same score — completely different risk profile. <strong>"Guessed right"</strong> is not reproducible. <strong>"Understood right"</strong> is. Mistral: assumed 10 → 0 with comments.</div>
+    <div class="callout" style="margin-top:0;border-color:var(--red)"><strong>Unexpected:</strong> Claude assumed 5→7 with comments. Comments made Claude <em>surface more gaps</em> — not fewer. Comments don't hide risk, they make it visible. That's the point.</div>
+  </div>
+</div>
+
+<!-- S11 INSIGHT -->
+<div class="slide" id="s11">
+  <div class="tag">The Insight</div>
+  <div class="igap">
+    <div class="ibox">
+      <h3>What you know</h3>
+      <div class="ex">vat_blocked: [RU, BY]<br>retry_on: [network_error]<br>provider: internal<br>discount: tenure >= 6mo</div>
+      <p>Legal rules. Post-mortem decisions. Compliance requirements. Team agreements.</p>
+    </div>
+    <div class="iarrow">
+      <div class="sym">≠</div>
+      <div class="lbl">The gap</div>
+    </div>
+    <div class="ibox">
+      <h3>What you wrote</h3>
+      <div class="ex" style="color:var(--orange)">"Build a React invoice<br>form with line items<br>and totals."</div>
+      <p>What the model received. What it had to work with.</p>
+    </div>
+  </div>
+  <div class="iquote">
+    The gap isn't between you and the model.<br>
+    <span>It's between what you know — and what you wrote down.</span>
+  </div>
+</div>
+
+<!-- S12 SIFY -->
+<div class="slide" id="s12">
+  <div class="stitle">S · I · F · Y</div>
+  <div class="ssub">The Spec Is For You — a thinking framework for AI-assisted development</div>
+  <div class="sgrid">
+    <div class="sc">
+      <div class="sl2">S</div>
+      <h4>Structure before generation</h4>
+      <p>Write the spec before the prompt. Like TDD — test before code. The spec is a contract that forces your implicit knowledge into explicit form.</p>
+      <div class="proof">→ proven T1: 2/10 → 9/10 from format alone</div>
+    </div>
+    <div class="sc">
+      <div class="sl2">I</div>
+      <h4>Intent is yours, not AI's</h4>
+      <p>AI knows patterns. It does not know your business. No model will invent your domain rules — they live only in your head until you write them down.</p>
+      <div class="proof">→ proven T6: Claude 1306 tokens → 0/10</div>
+    </div>
+    <div class="sc">
+      <div class="sl2">F</div>
+      <h4>Format over syntax</h4>
+      <p>Structure matters. Key names don't. <code>vat_in</code> and <code>vat_eu_pct</code> produce identical results. No standard needed — just structure.</p>
+      <div class="proof">→ proven T7: weird keys scored 10/10</div>
+    </div>
+    <div class="sc">
+      <div class="sl2">Y</div>
+      <h4>Your assumed is your risk</h4>
+      <p>Every silent decision is invisible until it breaks. <code>assumed: 0</code> doesn't mean zero assumptions — it means they weren't reported.</p>
+      <div class="proof">→ proven T8: assumed 10 → 0 with comments</div>
+    </div>
+  </div>
+</div>
+
+<!-- S13 ANTIPATTERNS -->
+<div class="slide" id="s13">
+  <div class="tag red">Antipatterns</div>
+  <h2 class="slide-title">Four ways to look in control — while you're not</h2>
+  <div class="apgrid">
+    <div class="apc">
+      <div class="apn">Prompt and pray</div>
+      <div class="app">violates S — structure first</div>
+      <div class="apd">Iterate without a contract. Each prompt shifts the context. By message five you've forgotten what you wanted and the model optimizes for your last message — not your first intent.</div>
+    </div>
+    <div class="apc">
+      <div class="apn">Spec delegation</div>
+      <div class="app">violates I — intent is yours</div>
+      <div class="apd">Ask AI to write the spec. Get beautiful, well-structured YAML — with zero of your business rules. Claude spent 1,306 tokens producing a spec that scored 0/10 on domain requirements.</div>
+    </div>
+    <div class="apc">
+      <div class="apn">Schema paralysis</div>
+      <div class="app">violates F — format over syntax</div>
+      <div class="apd">Spend a day researching the "correct" YAML format instead of writing the spec. T7 proved: the model doesn't care about key names. Pick any format and start writing.</div>
+    </div>
+    <div class="apc worst">
+      <div class="apn">Silent success ⚠</div>
+      <div class="app">violates Y — your assumed is your risk</div>
+      <div class="apd">Code works. Tests pass. Ten decisions were made without you — embedded in generated code, invisible until the German customer tries to pay on a Tuesday afternoon.</div>
+    </div>
+  </div>
+</div>
+
+<!-- S14 CLOSE -->
+<div class="slide" id="s14">
+  <div class="sfinal">S · <span style="color:var(--accent)">I</span> · F · Y</div>
+  <div class="fhead">The spec is not for the AI.<br><span class="facc">The spec is for you.</span></div>
+  <div class="fsub">Write the intent. Extract your knowledge. Control the generation.</div>
+  <div class="qrow">
+    <div class="qi">
+      <div class="qb">
+        <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+          <rect width="21" height="21" fill="white"/>
+          <g fill="black">
+            <rect x="0" y="0" width="7" height="7"/><rect x="1" y="1" width="5" height="5" fill="white"/><rect x="2" y="2" width="3" height="3"/>
+            <rect x="14" y="0" width="7" height="7"/><rect x="15" y="1" width="5" height="5" fill="white"/><rect x="16" y="2" width="3" height="3"/>
+            <rect x="0" y="14" width="7" height="7"/><rect x="1" y="15" width="5" height="5" fill="white"/><rect x="2" y="16" width="3" height="3"/>
+            <rect x="9" y="0" width="1" height="1"/><rect x="11" y="0" width="1" height="1"/>
+            <rect x="8" y="2" width="1" height="1"/><rect x="10" y="2" width="1" height="1"/><rect x="12" y="2" width="1" height="1"/>
+            <rect x="9" y="4" width="1" height="1"/><rect x="11" y="4" width="1" height="1"/>
+            <rect x="0" y="8" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="10" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="16" y="8" width="1" height="1"/><rect x="18" y="8" width="1" height="1"/><rect x="20" y="8" width="1" height="1"/>
+            <rect x="9" y="10" width="1" height="1"/><rect x="11" y="10" width="1" height="1"/><rect x="13" y="10" width="1" height="1"/>
+            <rect x="8" y="12" width="1" height="1"/><rect x="10" y="12" width="1" height="1"/><rect x="12" y="12" width="1" height="1"/>
+            <rect x="14" y="10" width="1" height="1"/><rect x="16" y="10" width="1" height="1"/><rect x="18" y="10" width="1" height="1"/><rect x="20" y="10" width="1" height="1"/>
+            <rect x="15" y="12" width="1" height="1"/><rect x="17" y="12" width="1" height="1"/><rect x="19" y="12" width="1" height="1"/>
+            <rect x="14" y="14" width="1" height="1"/><rect x="16" y="14" width="1" height="1"/><rect x="18" y="14" width="1" height="1"/><rect x="20" y="14" width="1" height="1"/>
+            <rect x="15" y="16" width="1" height="1"/><rect x="17" y="16" width="1" height="1"/><rect x="19" y="16" width="1" height="1"/>
+            <rect x="14" y="18" width="1" height="1"/><rect x="16" y="18" width="1" height="1"/><rect x="18" y="18" width="1" height="1"/>
+            <rect x="1" y="10" width="1" height="1"/><rect x="3" y="10" width="1" height="1"/><rect x="5" y="10" width="1" height="1"/>
+            <rect x="0" y="12" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="4" y="12" width="1" height="1"/><rect x="6" y="12" width="1" height="1"/>
+          </g>
+        </svg>
+      </div>
+      <div class="ql">SIFY Framework<br>research + principles</div>
+      <div class="qu">github.com/sify-framework</div>
+    </div>
+    <div class="qi">
+      <div class="qb">
+        <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+          <rect width="21" height="21" fill="white"/>
+          <g fill="black">
+            <rect x="0" y="0" width="7" height="7"/><rect x="1" y="1" width="5" height="5" fill="white"/><rect x="2" y="2" width="3" height="3"/>
+            <rect x="14" y="0" width="7" height="7"/><rect x="15" y="1" width="5" height="5" fill="white"/><rect x="16" y="2" width="3" height="3"/>
+            <rect x="0" y="14" width="7" height="7"/><rect x="1" y="15" width="5" height="5" fill="white"/><rect x="2" y="16" width="3" height="3"/>
+            <rect x="8" y="0" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="12" y="0" width="1" height="1"/>
+            <rect x="9" y="2" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/>
+            <rect x="8" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="12" y="4" width="1" height="1"/>
+            <rect x="0" y="8" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="10" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="16" y="8" width="1" height="1"/><rect x="18" y="8" width="1" height="1"/><rect x="20" y="8" width="1" height="1"/>
+            <rect x="8" y="10" width="1" height="1"/><rect x="10" y="10" width="1" height="1"/><rect x="12" y="10" width="1" height="1"/>
+            <rect x="9" y="12" width="1" height="1"/><rect x="11" y="12" width="1" height="1"/>
+            <rect x="8" y="14" width="1" height="1"/><rect x="10" y="14" width="1" height="1"/><rect x="12" y="14" width="1" height="1"/>
+            <rect x="14" y="10" width="1" height="1"/><rect x="16" y="10" width="1" height="1"/><rect x="18" y="10" width="1" height="1"/><rect x="20" y="10" width="1" height="1"/>
+            <rect x="15" y="12" width="1" height="1"/><rect x="17" y="12" width="1" height="1"/><rect x="19" y="12" width="1" height="1"/>
+            <rect x="14" y="14" width="1" height="1"/><rect x="16" y="14" width="1" height="1"/><rect x="18" y="14" width="1" height="1"/>
+            <rect x="15" y="16" width="1" height="1"/><rect x="17" y="16" width="1" height="1"/><rect x="19" y="16" width="1" height="1"/>
+            <rect x="14" y="18" width="1" height="1"/><rect x="16" y="18" width="1" height="1"/><rect x="18" y="18" width="1" height="1"/><rect x="20" y="18" width="1" height="1"/>
+            <rect x="1" y="10" width="1" height="1"/><rect x="3" y="10" width="1" height="1"/><rect x="5" y="10" width="1" height="1"/>
+            <rect x="0" y="12" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="4" y="12" width="1" height="1"/>
+            <rect x="1" y="14" width="1" height="1"/><rect x="3" y="14" width="1" height="1"/><rect x="5" y="14" width="1" height="1"/>
+            <rect x="0" y="16" width="1" height="1"/><rect x="2" y="16" width="1" height="1"/><rect x="4" y="16" width="1" height="1"/><rect x="6" y="16" width="1" height="1"/>
+            <rect x="1" y="18" width="1" height="1"/><rect x="3" y="18" width="1" height="1"/><rect x="5" y="18" width="1" height="1"/>
+          </g>
+        </svg>
+      </div>
+      <div class="ql">PromptFarm<br>platform built on SIFY</div>
+      <div class="qu">promptfarm.dev</div>
+    </div>
+    <div class="qi">
+      <div class="qb">
+        <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+          <rect width="21" height="21" fill="white"/>
+          <g fill="black">
+            <rect x="0" y="0" width="7" height="7"/><rect x="1" y="1" width="5" height="5" fill="white"/><rect x="2" y="2" width="3" height="3"/>
+            <rect x="14" y="0" width="7" height="7"/><rect x="15" y="1" width="5" height="5" fill="white"/><rect x="16" y="2" width="3" height="3"/>
+            <rect x="0" y="14" width="7" height="7"/><rect x="1" y="15" width="5" height="5" fill="white"/><rect x="2" y="16" width="3" height="3"/>
+            <rect x="9" y="1" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/>
+            <rect x="8" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="12" y="3" width="1" height="1"/>
+            <rect x="9" y="5" width="1" height="1"/><rect x="11" y="5" width="1" height="1"/>
+            <rect x="0" y="8" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="10" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="16" y="8" width="1" height="1"/><rect x="18" y="8" width="1" height="1"/><rect x="20" y="8" width="1" height="1"/>
+            <rect x="9" y="10" width="1" height="1"/><rect x="11" y="10" width="1" height="1"/>
+            <rect x="8" y="12" width="1" height="1"/><rect x="10" y="12" width="1" height="1"/><rect x="12" y="12" width="1" height="1"/>
+            <rect x="9" y="14" width="1" height="1"/><rect x="11" y="14" width="1" height="1"/>
+            <rect x="8" y="16" width="1" height="1"/><rect x="10" y="16" width="1" height="1"/><rect x="12" y="16" width="1" height="1"/>
+            <rect x="9" y="18" width="1" height="1"/><rect x="11" y="18" width="1" height="1"/>
+            <rect x="14" y="10" width="1" height="1"/><rect x="16" y="10" width="1" height="1"/><rect x="18" y="10" width="1" height="1"/><rect x="20" y="10" width="1" height="1"/>
+            <rect x="15" y="12" width="1" height="1"/><rect x="17" y="12" width="1" height="1"/><rect x="19" y="12" width="1" height="1"/>
+            <rect x="14" y="14" width="1" height="1"/><rect x="16" y="14" width="1" height="1"/><rect x="18" y="14" width="1" height="1"/>
+            <rect x="15" y="16" width="1" height="1"/><rect x="17" y="16" width="1" height="1"/><rect x="19" y="16" width="1" height="1"/>
+            <rect x="14" y="18" width="1" height="1"/><rect x="16" y="18" width="1" height="1"/><rect x="18" y="18" width="1" height="1"/><rect x="20" y="18" width="1" height="1"/>
+            <rect x="1" y="10" width="1" height="1"/><rect x="3" y="10" width="1" height="1"/><rect x="5" y="10" width="1" height="1"/>
+            <rect x="0" y="12" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="4" y="12" width="1" height="1"/>
+            <rect x="1" y="14" width="1" height="1"/><rect x="3" y="14" width="1" height="1"/><rect x="5" y="14" width="1" height="1"/>
+            <rect x="0" y="16" width="1" height="1"/><rect x="2" y="16" width="1" height="1"/><rect x="4" y="16" width="1" height="1"/>
+            <rect x="1" y="18" width="1" height="1"/><rect x="3" y="18" width="1" height="1"/><rect x="5" y="18" width="1" height="1"/>
+          </g>
+        </svg>
+      </div>
+      <div class="ql">Article series<br>SIFY in depth</div>
+      <div class="qu">medium.com/@andrei/sify</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div id="nav">
+  <button class="nb" onclick="prev()">‹</button>
+  <div id="dots"></div>
+  <button class="nb" onclick="next()">›</button>
+  <div id="snum">1 / 14</div>
+  <button class="nb" onclick="toggleTheme()" title="Toggle theme (T)">◐</button>
+</div>
+<div id="hint"><kbd>←</kbd> <kbd>→</kbd> navigate &nbsp; <kbd>T</kbd> theme</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+const dotsEl = document.getElementById('dots');
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+function goTo(n) {
+  if (n < 0 || n >= total) return;
+  slides[current].classList.remove('active');
+  slides[current].classList.add('out');
+  setTimeout(() => slides[current].classList.remove('out'), 400);
+  current = n;
+  slides[current].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  document.getElementById('snum').textContent = `${current + 1} / ${total}`;
+}
+function next() { goTo(current + 1); }
+function prev() { goTo(current - 1); }
+let dark = true;
+function toggleTheme() {
+  dark = !dark;
+  document.body.classList.toggle('light', !dark);
+  document.querySelector('[onclick="toggleTheme()"]').textContent = dark ? '◐' : '◑';
+}
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); next(); }
+  if (['ArrowLeft','ArrowUp'].includes(e.key)) { e.preventDefault(); prev(); }
+  if (e.key === 't' || e.key === 'T') toggleTheme();
+});
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 40) dx < 0 ? next() : prev();
+});
+</script>
+</body>
+</html>
