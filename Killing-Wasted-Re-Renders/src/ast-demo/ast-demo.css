@@ -1,59 +1,9 @@
-:root {
-  color-scheme: light;
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  background: #f4f7fb;
-  color: #182332;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: radial-gradient(circle at top left, #f9fbff 0%, #e8f0fb 55%, #d9e8f8 100%);
-}
-
-.app-shell {
-  margin: 0 auto;
-  max-width: 1200px;
-  padding: 24px;
-}
-
-.app-header h1 {
-  margin-bottom: 8px;
-}
-
-.app-header p {
-  margin-top: 0;
-  color: #395470;
-}
-
-.app-view-switch {
-  display: inline-flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.app-view-switch button {
-  border: 1px solid #a9bdd7;
-  border-radius: 8px;
-  background: #eef4ff;
-  min-height: 34px;
-  padding: 6px 12px;
-  cursor: pointer;
-}
-
-.app-view-switch button.is-active {
-  background: #d9e9ff;
-  border-color: #7699c5;
-}
+/* AST+AI demo styles — shell classes removed, handled by AstDemoApp with Tailwind */
 
 .dashboard {
   display: grid;
   gap: 16px;
 }
-
 
 .toolbar {
   display: flex;
@@ -594,10 +544,6 @@ body {
 }
 
 @media (max-width: 760px) {
-  .app-shell {
-    padding: 14px;
-  }
-
   .order-row {
     flex-direction: column;
   }

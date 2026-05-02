@@ -17,15 +17,6 @@ const HOOK_MAPPING: Record<string, string> = {
   useCallback: 'useTrackedCallback',
 }
 
-const REACT_HOOKS = new Set([
-  'useEffect',
-  'useMemo',
-  'useCallback',
-  'useState',
-  'useReducer',
-  'useContext',
-  'useRef',
-])
 
 /**
  * Production-ready Babel plugin for automatic React hooks instrumentation.
@@ -53,18 +44,8 @@ function babelPluginReactHooksInstrumentation(): PluginObj {
         const data = stateMap.get(state.file)
         if (!data) return
 
-        const source = path.node.source.value
-
-        if (source === 'react') {
+        if (path.node.source.value === 'react') {
           data.importsReact = true
-          path.node.specifiers.forEach((spec: any) => {
-            if (BabelTypes.isImportSpecifier(spec) && BabelTypes.isIdentifier(spec.imported)) {
-              const imported = spec.imported.name
-              if (REACT_HOOKS.has(imported)) {
-                data.instrumentationImports.add(imported)
-              }
-            }
-          })
         }
       },
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { Profiler, useEffect, useRef, useState } from 'react'
 import {
   Background,
   Controls,
@@ -27,6 +27,12 @@ import {
   type TrackerSnapshot,
 } from './instrumentation/trackerStore'
 import {
+  useRenderTracker,
+  useTrackedCallback,
+  useTrackedEffect,
+  useTrackedMemo,
+} from './instrumentation/hookTrackers'
+import {
   buildLikelyCauses,
   formatDependencySummary,
   formatScopeCounts,
@@ -38,6 +44,10 @@ import {
   buildProblematicRuntimeNodes,
   type RuntimeNodeCacheEntry,
 } from './runtimeNodeStabilization'
+import { recordProfilerEvent } from './instrumentation/profilerStore'
+import { ProfilerPanel } from './instrumentation/ProfilerPanel'
+
+export type PanelFilter = 'profiler-only' | 'all'
 
 type FlowNodeData = {
   label: string
@@ -130,11 +140,20 @@ const buildInitialEdges = (): Edge[] => {
 const initialNodes = buildInitialNodes()
 const initialEdges = buildInitialEdges()
 
-const ProfiledNode = (props: NodeProps<FlowNode>) => {
-  const { data, selected } = props
+const ProfiledNode = React.memo((props: NodeProps<FlowNode>) => {
+  const { id, data, selected, dragging } = props
 
-  // Diagnostic instrumentation: measure whether this memo actually avoids recomputation.
-  const score = useMemo(() => {
+  useRenderTracker('GRAPH_NODE', {
+    id,
+    data,
+    selected,
+    dragging,
+  })
+
+  const score = useTrackedMemo(
+    'GRAPH_NODE',
+    'scoreMemo',
+    () => {
       const tagWeight = data.tags.reduce((sum, tag) => sum + tag.length, 0)
       return Math.round(
         data.complexity * 0.6 +
@@ -147,8 +166,10 @@ const ProfiledNode = (props: NodeProps<FlowNode>) => {
     [data],
   )
 
-  // Diagnostic instrumentation: capture effect reruns and dependency churn in node-level effects.
-  useEffect(() => undefined,
+  useTrackedEffect(
+    'GRAPH_NODE',
+    'selectionEffect',
+    () => undefined,
     [selected, data.liveHint, data.tags],
   )
 
@@ -159,15 +180,17 @@ const ProfiledNode = (props: NodeProps<FlowNode>) => {
   }
 
   return (
-    <div className="profiled-node" style={cardStyle}>
-      <Handle type="target" position={Position.Top} />
-      <div className="node-title">{data.label}</div>
-      <div className="node-meta">{data.owner}</div>
-      <div className="node-score">score {score}</div>
-      <Handle type="source" position={Position.Bottom} />
-    </div>
+    <Profiler id="GraphNode" onRender={recordProfilerEvent}>
+      <div className="profiled-node" style={cardStyle}>
+        <Handle type="target" position={Position.Top} />
+        <div className="node-title">{data.label}</div>
+        <div className="node-meta">{data.owner}</div>
+        <div className="node-score">score {score}</div>
+        <Handle type="source" position={Position.Bottom} />
+      </div>
+    </Profiler>
   )
-}
+})
 
 type DetailsPanelProps = {
   selectedNode: FlowNode | null
@@ -177,7 +200,17 @@ type DetailsPanelProps = {
 }
 
 const DetailsPanel = ({ selectedNode, viewport, dragSample, hotNodeIds }: DetailsPanelProps) => {
-  const insightRows = useMemo(() => {
+  useRenderTracker('DETAILS_PANEL', {
+    selectedNode,
+    viewport,
+    dragSample,
+    hotNodeIds,
+  })
+
+  const insightRows = useTrackedMemo(
+    'DETAILS_PANEL',
+    'insightRowsMemo',
+    () => {
       if (!selectedNode) {
         return []
       }
@@ -197,8 +230,10 @@ const DetailsPanel = ({ selectedNode, viewport, dragSample, hotNodeIds }: Detail
 
   const [effectTrail, setEffectTrail] = useState<string[]>([])
 
-  // Diagnostic instrumentation: track panel effect churn to separate semantic updates from ref churn.
-  useEffect(() => {
+  useTrackedEffect(
+    'DETAILS_PANEL',
+    'effectTrailSync',
+    () => {
       if (!selectedNode) {
         return
       }
@@ -714,7 +749,7 @@ const DebugPanel = ({
   )
 }
 
-function App() {
+function App({ panelFilter = 'all' }: { panelFilter?: PanelFilter }) {
   const [nodes, , onNodesChange] = useNodesState<FlowNode>(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   const [mode, setMode] = useState<DemoMode>('problematic')
@@ -761,7 +796,10 @@ function App() {
     performReset('mode-switch', nextMode)
   }
 
-  const runtimeNodes = useMemo(() => {
+  const runtimeNodes = useTrackedMemo(
+    'APP_ROOT',
+    'runtimeNodesMemo',
+    () => {
       const viewportBucket = Math.round(viewport.zoom * 10)
       const sharedDragPulse = dragSample.tick % 11
 
@@ -784,8 +822,10 @@ function App() {
     [nodes, viewport, dragSample, runtimeNodesSelectionDependency, mode],
   )
 
-  // Diagnostic instrumentation: check whether derived root memos are invalidating too often.
-  const hotNodeIds = useMemo(() => {
+  const hotNodeIds = useTrackedMemo(
+    'APP_ROOT',
+    'hotNodeIdsMemo',
+    () => {
       return runtimeNodes
         .filter((node) => node.data.complexity + node.data.liveHint.viewportBucket > 70)
         .map((node) => node.id)
@@ -793,11 +833,17 @@ function App() {
     [runtimeNodes, viewport, dragSample],
   )
 
-  const selectedNode = useMemo(() => runtimeNodes.find((node) => node.id === selectedNodeId) ?? null,
+  const selectedNode = useTrackedMemo(
+    'APP_ROOT',
+    'selectedNodeMemo',
+    () => runtimeNodes.find((node) => node.id === selectedNodeId) ?? null,
     [runtimeNodes, selectedNodeId, viewport],
   )
 
-  const trackedEdges = useMemo(() => {
+  const trackedEdges = useTrackedMemo(
+    'APP_ROOT',
+    'trackedEdgesMemo',
+    () => {
       return edges.map((edge) => ({
         ...edge,
         animated: Boolean(selectedNodeId && edge.source === selectedNodeId),
@@ -810,7 +856,10 @@ function App() {
     [edges, selectedNodeId, viewport],
   )
 
-  useEffect(() => {
+  useTrackedEffect(
+    'APP_ROOT',
+    'selectedNodeEdgeTouchEffect',
+    () => {
       if (!selectedNodeId) {
         return
       }
@@ -841,8 +890,10 @@ function App() {
     }
   }, [])
 
-  // Diagnostic instrumentation: track callback identity churn for event handlers.
-  const handleNodeClick = useCallback((_event: React.MouseEvent, node: FlowNode) => {
+  const handleNodeClick = useTrackedCallback(
+    'APP_ROOT',
+    'handleNodeClickCallback',
+    (_event: React.MouseEvent, node: FlowNode) => {
       startInteraction('SELECT_NODE')
       setSelectedNodeId(node.id)
 
@@ -857,13 +908,19 @@ function App() {
     [viewport, dragSample],
   )
 
-  const handleNodeDragStart = useCallback(() => {
+  const handleNodeDragStart = useTrackedCallback(
+    'APP_ROOT',
+    'handleNodeDragStartCallback',
+    () => {
       startInteraction('DRAG_NODE')
     },
     [selectedNodeId],
   )
 
-  const handleNodeDrag = useCallback((_event: React.MouseEvent, node: FlowNode) => {
+  const handleNodeDrag = useTrackedCallback(
+    'APP_ROOT',
+    'handleNodeDragCallback',
+    (_event: React.MouseEvent, node: FlowNode) => {
       setDragSample((current) => ({
         nodeId: node.id,
         x: node.position.x,
@@ -874,31 +931,46 @@ function App() {
     [viewport, selectedNodeId],
   )
 
-  const handleNodeDragStop = useCallback(() => {
+  const handleNodeDragStop = useTrackedCallback(
+    'APP_ROOT',
+    'handleNodeDragStopCallback',
+    () => {
       window.setTimeout(() => endInteraction('DRAG_NODE'), 0)
     },
     [dragSample],
   )
 
-  const handleMoveStart = useCallback(() => {
+  const handleMoveStart = useTrackedCallback(
+    'APP_ROOT',
+    'handleMoveStartCallback',
+    () => {
       startInteraction('PAN_CANVAS')
     },
     [selectedNodeId],
   )
 
-  const handleMove = useCallback((_event: any, nextViewport: Viewport) => {
+  const handleMove = useTrackedCallback(
+    'APP_ROOT',
+    'handleMoveCallback',
+    (_event: any, nextViewport: Viewport) => {
       setViewport(nextViewport)
     },
     [dragSample],
   )
 
-  const handleMoveEnd = useCallback(() => {
+  const handleMoveEnd = useTrackedCallback(
+    'APP_ROOT',
+    'handleMoveEndCallback',
+    () => {
       window.setTimeout(() => endInteraction('PAN_CANVAS'), 0)
     },
     [selectedNodeId],
   )
 
-  const nodeTypes = useMemo(() => ({
+  const nodeTypes = useTrackedMemo(
+    'APP_ROOT',
+    'nodeTypesMemo',
+    () => ({
       profiled: ProfiledNode,
     }),
     [viewport],
@@ -910,6 +982,23 @@ function App() {
     proOptions: { hideAttribution: true },
   }
 
+  useRenderTracker('APP_ROOT', {
+    nodes,
+    edges,
+    selectedNodeId,
+    viewport,
+    dragSample,
+    runtimeNodes,
+    trackedEdges,
+    hotNodeIds,
+    selectedNode,
+    handleNodeClick,
+    handleNodeDrag,
+    handleMove,
+    nodeTypes,
+    unstableFlowOptions,
+  })
+
   return (
     <div className="app-shell">
       <header>
@@ -917,7 +1006,6 @@ function App() {
         <p>
           Tiny PoC for measuring how much work a simple interaction can trigger in a React + React Flow app.
         </p>
-        {import.meta.env.VITE_ENABLE_BABEL_INSTRUMENTATION === 'true' && (
         <div className="mode-switch">
           <span>Implementation mode:</span>
           <button
@@ -937,7 +1025,7 @@ function App() {
           <span className="subtle mode-note">
             Tracker is unchanged across both modes. Use Reset + same interactions for fair comparison.
           </span>
-        </div>)}
+        </div>
       </header>
 
       <div className="layout">
@@ -967,24 +1055,27 @@ function App() {
           </ReactFlow>
         </main>
 
-        {import.meta.env.VITE_ENABLE_BABEL_INSTRUMENTATION === 'true' && (
-          <aside className="side-panels">
-            <DetailsPanel
-              selectedNode={selectedNode}
-              viewport={viewport}
-              dragSample={dragSample}
-              hotNodeIds={hotNodeIds}
-            />
-            <DebugPanel
-              mode={mode}
-              resetVersion={resetVersion}
-              lastResetReason={lastResetReason}
-              modeSwitchCount={modeSwitchCount}
-              modeEntryResetVersion={modeEntryResetVersion}
-              onRequestReset={() => performReset('manual', mode)}
-            />
-          </aside>
-        )}
+        <aside className="side-panels">
+          <ProfilerPanel resetVersion={resetVersion} />
+          {panelFilter === 'all' && (
+            <>
+              <DetailsPanel
+                selectedNode={selectedNode}
+                viewport={viewport}
+                dragSample={dragSample}
+                hotNodeIds={hotNodeIds}
+              />
+              <DebugPanel
+                mode={mode}
+                resetVersion={resetVersion}
+                lastResetReason={lastResetReason}
+                modeSwitchCount={modeSwitchCount}
+                modeEntryResetVersion={modeEntryResetVersion}
+                onRequestReset={() => performReset('manual', mode)}
+              />
+            </>
+          )}
+        </aside>
       </div>
     </div>
   )

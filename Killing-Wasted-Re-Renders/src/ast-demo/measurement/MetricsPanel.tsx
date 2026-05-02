@@ -116,6 +116,9 @@ export function MetricsPanel() {
           color: 'black'
         }} onClick={() => resetMetrics()}>Reset Metrics</button>
         <button
+        style={{
+          color: 'black'
+        }} 
           onClick={() => {
             const exportSnapshot = exportMetricsSnapshot();
             const json = JSON.stringify(exportSnapshot, null, 2);

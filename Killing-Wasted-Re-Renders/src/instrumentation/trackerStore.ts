@@ -241,23 +241,25 @@ const finalizeActiveInteraction = () => {
  * These arrays power the debug UI sections (top effects, unstable memos, changing props).
  */
 const rebuildDiagnosticArrays = () => {
-  state.diagnostics.hooks = Array.from(hookRegistry.values()).map((hookStat) => {
-    const depChanges = Object.values(hookStat.depChanges).sort((a, b) => b.count - a.count)
-    const componentRenders = state.diagnostics.renders[hookStat.component].renders
-    const invalidationRatio = componentRenders > 0 ? hookStat.runs / componentRenders : 0
+  state.diagnostics.hooks = Array.from(hookRegistry.values())
+    .filter((hookStat) => Boolean(state.diagnostics.renders[hookStat.component]))
+    .map((hookStat) => {
+      const depChanges = Object.values(hookStat.depChanges).sort((a, b) => b.count - a.count)
+      const componentRenders = state.diagnostics.renders[hookStat.component].renders
+      const invalidationRatio = componentRenders > 0 ? hookStat.runs / componentRenders : 0
 
-    return {
-      component: hookStat.component,
-      hookId: hookStat.hookId,
-      kind: hookStat.kind,
-      runs: hookStat.runs,
-      byInteraction: copyCounter(hookStat.byInteraction),
-      depChanges,
-      invalidationRatio,
-      invalidatingTooOften:
-        hookStat.kind === 'memo' && hookStat.runs >= 5 && invalidationRatio >= 0.7,
-    }
-  })
+      return {
+        component: hookStat.component,
+        hookId: hookStat.hookId,
+        kind: hookStat.kind,
+        runs: hookStat.runs,
+        byInteraction: copyCounter(hookStat.byInteraction),
+        depChanges,
+        invalidationRatio,
+        invalidatingTooOften:
+          hookStat.kind === 'memo' && hookStat.runs >= 5 && invalidationRatio >= 0.7,
+      }
+    })
 
   state.diagnostics.props = Array.from(propRegistry.values()).map((propStat) => ({
     component: propStat.component,
@@ -275,6 +277,7 @@ const rebuildDiagnosticArrays = () => {
  * Also contributes to the currently active interaction window.
  */
 export const trackMetric = (component: ComponentId, metric: MetricId) => {
+  if (!state.components[component]) return
   state.components[component][metric] += 1
 
   if (state.active) {
@@ -288,6 +291,7 @@ export const trackMetric = (component: ComponentId, metric: MetricId) => {
  * Signal produced: which props changed most often and how much of that was reference-only churn.
  */
 export const trackRender = (component: ComponentId, changedProps: ChangedProp[]) => {
+  if (!state.diagnostics.renders[component]) return
   const scope = currentScope()
   const renderStat = state.diagnostics.renders[component]
 
