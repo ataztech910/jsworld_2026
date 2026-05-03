@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 type GamepadControlsOptions = {
   onNext?: () => void
@@ -12,6 +12,7 @@ type GamepadControlsOptions = {
 type GamepadControlsState = {
   isConnected: boolean
   isActivated: boolean
+  pulseHaptic: (intensity?: number, durationMs?: number) => Promise<boolean>
 }
 
 const BUTTON_A = 0
@@ -113,5 +114,51 @@ export function useGamepadControls(options: GamepadControlsOptions): GamepadCont
     }
   }, [])
 
-  return { isConnected, isActivated }
+  const pulseHaptic = useCallback(async (intensity = 0.75, durationMs = 140) => {
+    const activeGamepadIndex = activeGamepadIndexRef.current
+    if (activeGamepadIndex === null) return false
+
+    const gamepad = navigator.getGamepads?.()[activeGamepadIndex] ?? null
+    if (!gamepad) return false
+
+    const vibrationActuator = (
+      gamepad as Gamepad & {
+        vibrationActuator?: {
+          playEffect?: (
+            type: 'dual-rumble',
+            params: {
+              startDelay: number
+              duration: number
+              weakMagnitude: number
+              strongMagnitude: number
+            },
+          ) => Promise<unknown>
+        }
+      }
+    ).vibrationActuator
+
+    if (vibrationActuator?.playEffect) {
+      await vibrationActuator.playEffect('dual-rumble', {
+        startDelay: 0,
+        duration: durationMs,
+        weakMagnitude: intensity,
+        strongMagnitude: intensity,
+      })
+      return true
+    }
+
+    const hapticActuator = (
+      gamepad as Gamepad & {
+        hapticActuators?: Array<{ pulse?: (value: number, duration: number) => Promise<boolean> }>
+      }
+    ).hapticActuators?.[0]
+
+    if (hapticActuator?.pulse) {
+      return hapticActuator.pulse(intensity, durationMs)
+    }
+
+    return false
+  }, [])
+
+  return { isConnected, isActivated, pulseHaptic }
 }

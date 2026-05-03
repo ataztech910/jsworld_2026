@@ -15,6 +15,8 @@ type DemoMode = 'profiler' | 'full' | 'ast' | null
 const STORAGE_KEY = 'jsworld-pres-v1'
 const TALK_DURATION = 30 * 60
 const COUNTDOWN_START = 3
+const OVERDUE_HAPTIC_INTENSITY = 0.8
+const OVERDUE_HAPTIC_DURATION_MS = 160
 
 type PersistedPresentationState = {
   talk?: number
@@ -138,6 +140,7 @@ export function PresentationApp() {
   const countdownAudioRef = useRef<HTMLAudioElement | null>(null)
   const daySwitchAudioRef = useRef<HTMLAudioElement | null>(null)
   const countdownTimeoutsRef = useRef<number[]>([])
+  const overdueCueRef = useRef<number[]>([-1, -1, -1])
 
   const talk = TALKS[currentTalk]
   const allSlides: SlideDef[] = [makeSpeakerSlideDef(talk), ...talk.slides]
@@ -263,7 +266,11 @@ export function PresentationApp() {
 
   const isPresentationMode = demoMode === null
 
-  const { isConnected: isGamepadConnected, isActivated: isGamepadActivated } = useGamepadControls({
+  const {
+    isConnected: isGamepadConnected,
+    isActivated: isGamepadActivated,
+    pulseHaptic,
+  } = useGamepadControls({
     onNext: isPresentationMode ? () => go(1) : undefined,
     onPrev: isPresentationMode ? () => go(-1) : undefined,
     onToggleTimer: isPresentationMode ? toggleTimer : undefined,
@@ -283,6 +290,25 @@ export function PresentationApp() {
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [demoMode, go])
+
+  useEffect(() => {
+    if (!timerStartedAt) {
+      overdueCueRef.current[currentTalk] = -1
+    }
+  }, [currentTalk, timerStartedAt])
+
+  useEffect(() => {
+    if (!timerStartedAt || isCountdownRunning) return
+
+    const overdueCueIndex = talk.cuePointsSec.findLastIndex((cuePointSec, index) =>
+      index > 0 && elapsed >= cuePointSec && current < index,
+    )
+
+    if (overdueCueIndex <= overdueCueRef.current[currentTalk]) return
+
+    overdueCueRef.current[currentTalk] = overdueCueIndex
+    void pulseHaptic(OVERDUE_HAPTIC_INTENSITY, OVERDUE_HAPTIC_DURATION_MS)
+  }, [current, currentTalk, elapsed, isCountdownRunning, pulseHaptic, talk.cuePointsSec, timerStartedAt])
 
   useEffect(() => {
     const updateZoom = () => {
