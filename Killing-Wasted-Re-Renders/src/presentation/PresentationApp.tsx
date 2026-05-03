@@ -1,16 +1,20 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import App from '../App'
 import { AstDemoApp } from '../ast-demo/AstDemoApp'
+import countdownTickSoundSrc from '../assets/ElevenLabs_Sound_effect_for_winning_a_text-based_game_round_A_fast,_crisp_mechanical_typewriter_\'carriage_retu.mp3'
+import daySwitchSoundSrc from '../assets/ElevenLabs_Jackpot_win_chime,_bright_and_celebratory.mp3'
 import { SLIDES } from './slides'
 import type { SlideDef, SlideProps } from './slides'
 import { TALK2_SLIDES } from './talk2Slides'
 import { TALK3_SLIDES } from './talk3Slides'
 import { SpeakerSlide } from './SpeakerSlide'
+import { useGamepadControls } from './useGamepadControls'
 
 type DemoMode = 'profiler' | 'full' | 'ast' | null
 
 const STORAGE_KEY = 'jsworld-pres-v1'
 const TALK_DURATION = 30 * 60
+const COUNTDOWN_START = 3
 
 type PersistedPresentationState = {
   talk?: number
@@ -102,6 +106,12 @@ function formatTime(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
+function getElapsedSeconds(timerStartedAt: number | null): number {
+  if (!timerStartedAt) return 0
+  const secs = Math.floor((Date.now() - timerStartedAt) / 1000)
+  return Math.min(Math.max(secs, 0), TALK_DURATION)
+}
+
 // ─── PresentationApp ──────────────────────────────────────────────────────────
 
 export function PresentationApp() {
@@ -122,13 +132,63 @@ export function PresentationApp() {
     const { timerStartedAt } = readPersistedState()
     return typeof timerStartedAt === 'number' ? timerStartedAt : null
   })
-  const [elapsed, setElapsed] = useState(0)
+  const [elapsed, setElapsed] = useState(() => getElapsedSeconds(readPersistedState().timerStartedAt ?? null))
+  const [countdownValue, setCountdownValue] = useState<number | null>(null)
   const presRef = useRef<HTMLDivElement>(null)
+  const countdownAudioRef = useRef<HTMLAudioElement | null>(null)
+  const daySwitchAudioRef = useRef<HTMLAudioElement | null>(null)
+  const countdownTimeoutsRef = useRef<number[]>([])
 
   const talk = TALKS[currentTalk]
   const allSlides: SlideDef[] = [makeSpeakerSlideDef(talk), ...talk.slides]
   const total = allSlides.length
   const current = currentSlides[currentTalk]
+  const isCountdownRunning = countdownValue !== null
+
+  useEffect(() => {
+    countdownAudioRef.current = new Audio(countdownTickSoundSrc)
+    countdownAudioRef.current.preload = 'auto'
+    daySwitchAudioRef.current = new Audio(daySwitchSoundSrc)
+    daySwitchAudioRef.current.preload = 'auto'
+
+    return () => {
+      countdownTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId))
+      countdownTimeoutsRef.current = []
+    }
+  }, [])
+
+  const playAudio = useCallback((audio: HTMLAudioElement | null) => {
+    if (!audio) return
+    audio.currentTime = 0
+    void audio.play().catch(() => {})
+  }, [])
+
+  const clearCountdown = useCallback(() => {
+    countdownTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId))
+    countdownTimeoutsRef.current = []
+    setCountdownValue(null)
+  }, [])
+
+  const startCountdown = useCallback(() => {
+    clearCountdown()
+    setCountdownValue(COUNTDOWN_START)
+    playAudio(countdownAudioRef.current)
+
+    countdownTimeoutsRef.current = [
+      window.setTimeout(() => {
+        setCountdownValue(2)
+        playAudio(countdownAudioRef.current)
+      }, 1000),
+      window.setTimeout(() => {
+        setCountdownValue(1)
+        playAudio(countdownAudioRef.current)
+      }, 2000),
+      window.setTimeout(() => {
+        setCountdownValue(null)
+        setTimerStartedAt(Date.now())
+      }, 3000),
+    ]
+  }, [clearCountdown, playAudio])
 
   // Persist state to localStorage
   useEffect(() => {
@@ -141,18 +201,16 @@ export function PresentationApp() {
           timerStartedAt,
         }),
       )
-    } catch {}
+    } catch {
+      // Ignore storage write failures in presentation mode.
+    }
   }, [currentTalk, currentSlides, timerStartedAt])
 
   // Timer tick
   useEffect(() => {
-    if (!timerStartedAt) {
-      setElapsed(0)
-      return
-    }
+    if (!timerStartedAt) return
     const updateElapsed = () => {
-      const secs = Math.floor((Date.now() - timerStartedAt) / 1000)
-      setElapsed(Math.min(Math.max(secs, 0), TALK_DURATION))
+      setElapsed(getElapsedSeconds(timerStartedAt))
     }
     updateElapsed()
     const id = setInterval(() => {
@@ -161,18 +219,57 @@ export function PresentationApp() {
     return () => clearInterval(id)
   }, [timerStartedAt])
 
-  const go = (delta: number) => {
+  const go = useCallback((delta: number) => {
     setCurrentSlides((prev) => {
       const next = [...prev]
       next[currentTalk] = Math.max(0, Math.min(total - 1, prev[currentTalk] + delta))
       return next
     })
+  }, [currentTalk, total])
+
+  const toggleTimer = () => {
+    if (isCountdownRunning) {
+      clearCountdown()
+      return
+    }
+    if (timerStartedAt) {
+      setTimerStartedAt(null)
+      setElapsed(0)
+      return
+    }
+    startCountdown()
+  }
+
+  const resetTimer = () => {
+    clearCountdown()
+    setTimerStartedAt(null)
+    setElapsed(0)
   }
 
   const switchTalk = (idx: 0 | 1 | 2) => {
+    if (idx === currentTalk) return
+    playAudio(daySwitchAudioRef.current)
     setCurrentTalk(idx)
-    setTimerStartedAt(null)
+    resetTimer()
   }
+
+  const switchTalkByOffset = (delta: number) => {
+    const next = Math.max(0, Math.min(TALKS.length - 1, currentTalk + delta)) as 0 | 1 | 2
+    if (next === currentTalk) return
+    playAudio(daySwitchAudioRef.current)
+    setCurrentTalk(next)
+    resetTimer()
+  }
+
+  const isPresentationMode = demoMode === null
+
+  const { isConnected: isGamepadConnected, isActivated: isGamepadActivated } = useGamepadControls({
+    onNext: isPresentationMode ? () => go(1) : undefined,
+    onPrev: isPresentationMode ? () => go(-1) : undefined,
+    onToggleTimer: isPresentationMode ? toggleTimer : undefined,
+    onNextDay: isPresentationMode ? () => switchTalkByOffset(1) : undefined,
+    onPrevDay: isPresentationMode ? () => switchTalkByOffset(-1) : undefined,
+  })
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -185,16 +282,16 @@ export function PresentationApp() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [demoMode, currentTalk, currentSlides])
+  }, [demoMode, go])
 
   useEffect(() => {
     const updateZoom = () => {
       const el = presRef.current
       if (!el) return
-      ;(el.style as any).zoom = 1
+      el.style.setProperty('zoom', '1')
       const zoomW = Math.min(window.innerWidth, 2000) / 900
       const zoomH = window.innerHeight / (el.offsetHeight || 1)
-      ;(el.style as any).zoom = Math.min(zoomW, zoomH)
+      el.style.setProperty('zoom', String(Math.min(zoomW, zoomH)))
     }
     updateZoom()
     window.addEventListener('resize', updateZoom)
@@ -292,7 +389,7 @@ export function PresentationApp() {
                 {formatTime(elapsed)} elapsed
               </div>
               <button
-                onClick={() => setTimerStartedAt(null)}
+                onClick={toggleTimer}
                 className="text-[10px] text-white/40 hover:text-white/70 border-0 bg-transparent cursor-pointer px-0"
               >
                 ■ stop
@@ -301,7 +398,7 @@ export function PresentationApp() {
           ) : (
             <>
               <button
-                onClick={() => setTimerStartedAt(Date.now())}
+                onClick={toggleTimer}
                 className="text-[11px] text-white/50 hover:text-white/80 border border-white/10 hover:border-white/30 bg-transparent cursor-pointer px-2 py-0.5 rounded transition-colors"
               >
                 ▶ start 30 min
@@ -336,6 +433,16 @@ export function PresentationApp() {
             slideNumber={current + 1}
             total={total}
           />
+          {isCountdownRunning && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-md">
+              <div
+                key={countdownValue}
+                className="animate-[countdown-pop_900ms_ease-out_forwards] text-[220px] leading-none font-black text-white drop-shadow-[0_0_32px_rgba(0,0,0,0.55)] select-none"
+              >
+                {countdownValue}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Nav */}
@@ -355,6 +462,22 @@ export function PresentationApp() {
           >
             Next →
           </button>
+        </div>
+
+        <div className="pb-4 text-[11px] text-center">
+          {!isGamepadActivated ? (
+            <span className="text-white/35">
+              Press any button on the controller to activate gamepad controls.
+            </span>
+          ) : isGamepadConnected ? (
+            <span className="text-[#7dd3fc]">
+              Gamepad controls active: RB next slide, LB previous slide, D-pad left/right switch day, A start/stop timer.
+            </span>
+          ) : (
+            <span className="text-white/25">
+              Gamepad disconnected. Keyboard and mouse controls remain available.
+            </span>
+          )}
         </div>
 
       </div>

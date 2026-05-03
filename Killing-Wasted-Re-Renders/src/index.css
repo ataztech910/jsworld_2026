@@ -204,6 +204,32 @@ button:hover {
   font-weight: 600;
 }
 
+@keyframes countdown-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.55);
+    filter: blur(10px);
+  }
+
+  18% {
+    opacity: 1;
+    transform: scale(1.12);
+    filter: blur(0);
+  }
+
+  68% {
+    opacity: 1;
+    transform: scale(0.96);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.42);
+    filter: blur(4px);
+  }
+}
+
 .workflow-list li.in-progress {
   color: #1e40af;
   font-weight: 600;
