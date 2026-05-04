@@ -362,9 +362,10 @@ export function PresentationApp() {
             <button
               key={i}
               onClick={() => switchTalk(i as 0 | 1 | 2)}
+              style={{ backgroundColor: currentTalk === i ? '#1337ac' : undefined }}
               className={`m-2 flex-1 px-3 py-2 text-xs text-left transition-all border-0 cursor-pointer border-b-[3px] ${
                 currentTalk === i
-                  ? 'bg-[#1a3a6b] text-white border-[#00c4b4]'
+                  ? 'text-white border-[#00c4b4]'
                   : 'bg-[#111] text-white/40 border-transparent hover:text-white/70 hover:bg-[#1a1a1a]'
               }`}
             >
