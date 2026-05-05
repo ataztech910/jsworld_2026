@@ -140,6 +140,17 @@ const buildInitialEdges = (): Edge[] => {
 const initialNodes = buildInitialNodes()
 const initialEdges = buildInitialEdges()
 
+function simulateProfilerWork(complexity: number, baselineCost: number, viewportBucket: number) {
+  const iterations = 600 + complexity * 8 + baselineCost * 12 + viewportBucket * 20
+  let accumulator = 0
+
+  for (let index = 0; index < iterations; index += 1) {
+    accumulator += Math.sqrt((index % 17) + complexity) * Math.sin(index / 6)
+  }
+
+  return accumulator
+}
+
 const ProfiledNode = React.memo((props: NodeProps<FlowNode>) => {
   const { id, data, selected, dragging } = props
 
@@ -154,13 +165,19 @@ const ProfiledNode = React.memo((props: NodeProps<FlowNode>) => {
     'GRAPH_NODE',
     'scoreMemo',
     () => {
+      const renderCost = simulateProfilerWork(
+        data.complexity,
+        data.baselineCost,
+        data.liveHint.viewportBucket,
+      )
       const tagWeight = data.tags.reduce((sum, tag) => sum + tag.length, 0)
       return Math.round(
         data.complexity * 0.6 +
           data.baselineCost * 1.5 +
           data.liveHint.viewportBucket +
           data.liveHint.dragPulse +
-          tagWeight * 0.75,
+          tagWeight * 0.75 +
+          Math.abs(renderCost % 7),
       )
     },
     [data],
