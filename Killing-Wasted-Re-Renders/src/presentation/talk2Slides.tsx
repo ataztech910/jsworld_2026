@@ -147,7 +147,13 @@ function S5_Methodology({ slideNumber }: SlideProps) {
         </div>
         <div className="w-[200px]">
           <div className="bg-black/30 rounded-lg p-3 text-[11px] text-white/70 leading-5">
-            <div className="text-[#00c4b4] mb-2">10 business rules tested:</div>
+            <div className="text-[#2a5ff5] mb-2">Controlled example:</div>
+            <div className="text-white/60 mb-3">
+              deliberately simplified to isolate one variable:
+              <br />
+              <strong className="text-white/80">vague intent vs explicit intent</strong>
+            </div>
+            <div className="border-t border-white/10 pt-3 text-[#00c4b4] mb-2">10 business rules tested:</div>
             <div className="font-mono text-[10px] text-white/50 leading-5">
               min_amount_eur: 50{'\n'}
               vat.eu: 20{'\n'}
@@ -210,6 +216,11 @@ function S6_T1({ slideNumber }: SlideProps) {
             Same model. Same task. Same judge.
             <br />
             <strong>3–4× more correct</strong> from format alone.
+          </div>
+          <div className="bg-black/30 rounded-lg p-3 text-[11px] text-white/55 leading-5">
+            Controlled setup, not a full production simulation.
+            <br />
+            The exact scores may move in real projects. The pattern is the signal.
           </div>
         </div>
       </div>
@@ -321,6 +332,11 @@ function S8_T3({ slideNumber }: SlideProps) {
             <strong className="text-white/80">Format matters more than model selection.</strong>
             <br />
             You don't need a better model. You need a better spec.
+          </div>
+          <div className="bg-black/30 rounded-lg p-3 text-[11px] text-white/50 leading-5">
+            In real systems, the exact scores will move.
+            <br />
+            What stays stable is the pattern: explicit intent reduces guessing.
           </div>
         </div>
       </div>
