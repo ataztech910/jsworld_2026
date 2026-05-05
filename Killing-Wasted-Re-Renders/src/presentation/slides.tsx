@@ -268,6 +268,21 @@ function S08_BabelTransform({ slideNumber }: SlideProps) {
       </h2>
       <div className="flex gap-6 flex-1 min-h-0">
         <div className="flex-1 flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+              <div className="text-[11px] uppercase tracking-widest text-[#a78bfa] mb-2">AST</div>
+              <div className="text-[12px] text-white/75 leading-5">
+                Code represented as <strong className="text-white">structure</strong>, not raw text.
+                Function. Call. Arguments. Dependencies.
+              </div>
+            </div>
+            <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+              <div className="text-[11px] uppercase tracking-widest text-[#2a5ff5] mb-2">Babel</div>
+              <div className="text-[12px] text-white/75 leading-5">
+                Reads that tree, walks it, and <strong className="text-white">rewrites code before runtime</strong>.
+              </div>
+            </div>
+          </div>
           <div className="text-[11px] text-white/40 uppercase tracking-widest">Before (what you write)</div>
           <Code>
 {kw('useEffect')}(() {'=>'} syncState(), [nodeStyle, onSelect])
@@ -284,11 +299,12 @@ function S08_BabelTransform({ slideNumber }: SlideProps) {
         </div>
         <div className="w-[220px] flex flex-col gap-3">
           <div className="bg-black/30 rounded-lg p-3 text-[11px] text-white/70 leading-5">
-            <div className="text-[#a78bfa] font-mono mb-2">Plugin detects:</div>
-            <div>uppercase name → component</div>
-            <div>has return → React component</div>
+            <div className="text-[#a78bfa] font-mono mb-2">Why AST matters here</div>
+            <div>no string matching</div>
+            <div>exact component context</div>
+            <div>exact hook position</div>
             <div className="mt-2 border-t border-white/10 pt-2">
-              <div className="text-[#a78bfa] font-mono mb-1">Then:</div>
+              <div className="text-[#a78bfa] font-mono mb-1">Then Babel rewrites:</div>
               <div>useEffect → useTrackedEffect</div>
               <div>useMemo → useTrackedMemo</div>
               <div>useCallback → useTrackedCallback</div>
@@ -312,13 +328,13 @@ function S08b_ASTTraversal({ slideNumber }: SlideProps) {
       <h2 className="text-[22px] font-light text-white mb-6 border-l-[3px] border-[#a78bfa] pl-3">
         Three AST visitors — that's the whole plugin
       </h2>
+      <div className="bg-[#111827] border border-white/10 rounded-lg px-4 py-3 text-[12px] text-white/65 mb-4">
+        Not magic. Just structured access to code.
+      </div>
       <div className="grid grid-cols-3 gap-4 flex-1">
         <div className="bg-white/5 rounded-lg p-4 border-t-[3px] border-[#a78bfa]">
           <div className="text-[#a78bfa] text-[11px] uppercase tracking-widest mb-3">1. Function visitor</div>
-          <div className="font-mono text-[13px] text-white/80 mb-3">
-            FunctionDeclaration<br />
-            ArrowFunctionExpression
-          </div>
+          <div className="font-mono text-[13px] text-white/80 mb-3">find the component</div>
           <div className="text-[12px] text-white/50 leading-5">
             Uppercase name?<br />Has a return?<br />
             <span className="text-white/80">→ set componentName</span>
@@ -326,25 +342,18 @@ function S08b_ASTTraversal({ slideNumber }: SlideProps) {
         </div>
         <div className="bg-white/5 rounded-lg p-4 border-t-[3px] border-[#2a5ff5]">
           <div className="text-[#2a5ff5] text-[11px] uppercase tracking-widest mb-3">2. CallExpression</div>
-          <div className="font-mono text-[13px] text-white/80 mb-3">
-            useEffect(...)<br />
-            useMemo(...)<br />
-            useCallback(...)
-          </div>
+          <div className="font-mono text-[13px] text-white/80 mb-3">find tracked hooks</div>
           <div className="text-[12px] text-white/50 leading-5">
-            In HOOK_MAPPING?<br />
+            useEffect / useMemo / useCallback<br />
             <span className="text-white/80">→ inject componentName + "useEffect_0"</span>
           </div>
         </div>
         <div className="bg-white/5 rounded-lg p-4 border-t-[3px] border-[#00c4b4]">
           <div className="text-[#00c4b4] text-[11px] uppercase tracking-widest mb-3">3. Program.exit</div>
-          <div className="font-mono text-[13px] text-white/80 mb-3">
-            Import already<br />
-            exists?
-          </div>
+          <div className="font-mono text-[13px] text-white/80 mb-3">finish the file</div>
           <div className="text-[12px] text-white/50 leading-5">
-            No →<br />
-            <span className="text-white/80">inject import from hookTrackers once</span>
+            if anything was instrumented<br />
+            <span className="text-white/80">→ inject import from hookTrackers once</span>
           </div>
         </div>
       </div>
@@ -479,20 +488,50 @@ function S11_ProblemFound({ slideNumber }: SlideProps) {
       </h2>
       <div className="flex gap-6 flex-1 min-h-0 items-start">
         <div className="flex-1">
-          <Code>
-{cm('// DRAG_NODE: 50 interactions measured')}{'\n'}
-{cm('// GRAPH_NODE: 47 / 50 renders had this pattern:')}{'\n'}
-{'\n'}
-{kw('useEffect_0')} → dep[0] ({hl('object')}) changed {er('47/50')} renders{'\n'}
-              {cm('//              ↑ same value, new reference every render')}{'\n'}
-{'\n'}
-diagnosticSummary:{'\n'}
-{'  '}invalidationRatio: {er('0.94')}{cm('  // ran 94% of renders')}{'\n'}
-{'  '}invalidatingTooOften: {er('true')}{'\n'}
-{'  '}cause: {st('"reference-only churn"')}
-          </Code>
+          <table className="w-full border-collapse text-[12px] bg-white rounded-lg overflow-hidden">
+            <thead>
+              <tr>
+                <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Signal</th>
+                <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Measured value</th>
+                <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">What it means</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['Interaction scope', 'DRAG_NODE · 50 runs', 'We only measured the drag sequence'],
+                ['Component', 'GRAPH_NODE', 'Problem appears in the node component'],
+                ['Hook', 'useEffect_0', 'Same hook shows up repeatedly'],
+                ['Changed dep', 'dep[0]', 'The first dependency is the trigger'],
+                ['Type', 'object', 'Reference identity matters here'],
+                ['Pattern', '47 / 50 renders', 'Enough to call this systemic'],
+                ['Diagnosis', 'reference-only churn', 'Same meaning, new reference'],
+              ].map(([signal, value, meaning], i) => (
+                <tr key={signal} className={i % 2 === 1 ? 'bg-[#f7f9ff]' : ''}>
+                  <td className="px-3 py-2 border-b border-[#e5e5e5] text-[#1a3a6b] font-medium">{signal}</td>
+                  <td className={`px-3 py-2 border-b border-white/10 font-mono ${
+                    signal === 'Diagnosis'
+                      ? 'text-[#0f766e]'
+                      : signal === 'Pattern'
+                        ? 'text-[#dc2626]'
+                        : 'text-[#333]'
+                  }`}
+                  >
+                    {value}
+                  </td>
+                  <td className="px-3 py-2 border-b border-[#e5e5e5] text-[#555]">{meaning}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
         <div className="w-[220px] flex flex-col gap-3">
+          <div className="bg-black/30 rounded-lg p-3 text-[12px] text-white/70 leading-6">
+            <div className="text-[#f87171] mb-2">This is enough</div>
+            <div>hook + dependency index + type + frequency = diagnosis</div>
+            <div className="mt-2 border-t border-white/10 pt-2 text-white/50 text-[11px]">
+              We do not need five more charts once the pattern is this clear.
+            </div>
+          </div>
           <div className="bg-black/30 rounded-lg p-3 text-[12px] text-white/70 leading-6">
             <div className="text-[#f87171] mb-2">Root cause</div>
             <div className="font-mono text-[11px]">
@@ -525,26 +564,36 @@ function S11b_FindChangedDeps({ slideNumber }: SlideProps) {
         How we detect reference-only churn
       </h2>
       <div className="flex gap-5 flex-1 min-h-0 items-start">
-        <div className="flex-1">
-          <Code>
-{kw('const')} findChangedDependencies = ({'\n'}
-{'  '}previous: DependencyList,{'\n'}
-{'  '}current: DependencyList,{'\n'}
-): ChangedDependency[] {'=>'} {'{'}{'\n'}
-{'  '}{kw('for')} ({kw('let')} i = 0; i {'<'} current.length; i++) {'{'}{'\n'}
-{'    '}{kw('if')} (!Object.is(previous[i], current[i])) {'{'}{'\n'}
-{'      '}{cm('// Reference changed — but is the VALUE different?')}{'\n'}
-{'      '}changed.push({'{'}{'\n'}
-{'        '}index: i,{'\n'}
-{'        '}valueKind: {hl('classifyValue')}(current[i]),{'\n'}
-{'        '}{cm('// "primitive" | "object" | "function"')}{'\n'}
-{'      '}{'}'}) {'\n'}
-{'    }'}{'\n'}
-{'  '}{'\n'}
-{'  '}{cm('// classifyValue("object") + reference changed')}{'\n'}
-{'  '}{cm('// = reference-only churn candidate')}{'\n'}
-{'}'}
-          </Code>
+        <div className="flex-1 flex flex-col gap-3">
+          <div className="bg-[#111827] border border-white/10 rounded-lg px-4 py-3 text-[12px] text-white/65">
+            We diagnose reference behavior because React itself compares references.
+          </div>
+          <table className="w-full border-collapse text-[12px] bg-white rounded-lg overflow-hidden">
+            <thead>
+              <tr>
+                <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Check</th>
+                <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Condition</th>
+                <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Why it matters</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['1', 'prev !== next', 'React already thinks the dependency changed'],
+                ['2', 'valueKind === "object"', 'Objects are reference-sensitive'],
+                ['3', 'pattern repeats N / M renders', 'This is systemic, not accidental'],
+                ['4', 'same interaction scope', 'We can tie the churn to a user action'],
+              ].map(([step, condition, why], i) => (
+                <tr key={step} className={i % 2 === 1 ? 'bg-[#f7f9ff]' : ''}>
+                  <td className="px-3 py-2 border-b border-[#e5e5e5] text-[#1a3a6b] font-medium">{step}</td>
+                  <td className="px-3 py-2 border-b border-[#e5e5e5] text-[#b45309] font-mono">{condition}</td>
+                  <td className="px-3 py-2 border-b border-[#e5e5e5] text-[#555]">{why}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="bg-black/30 rounded-lg p-3 text-[11px] text-white/60 leading-5 font-mono">
+            if (!Object.is(previous[i], current[i])) → classifyValue(current[i]) → aggregate pattern
+          </div>
         </div>
         <div className="w-[200px] flex flex-col gap-3 text-[11px]">
           <div className="bg-black/30 rounded-lg p-3 text-white/70 leading-5">
@@ -590,7 +639,29 @@ function S13_FixCode({ slideNumber }: SlideProps) {
       </h2>
       <div className="flex gap-6 flex-1 min-h-0 items-start">
         <div className="flex-1 flex flex-col gap-3">
-          <div className="text-[11px] text-white/40 uppercase tracking-widest">Before — new object every render</div>
+          <table className="w-full border-collapse text-[12px] bg-white rounded-lg overflow-hidden">
+            <thead>
+              <tr>
+                <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Diagnostic step</th>
+                <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Measured signal</th>
+                <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Conclusion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['Most frequently changing props', 'GRAPH_NODE · data changes every drag tick', 'A new object reference reaches the node'],
+                ['How many nodes show it?', 'All 24 GraphNodes', 'The issue is above GraphNode, not inside one node'],
+                ['APP_ROOT / runtimeNodesMemo', 'Runs on every dragSample update', 'nodes.map() recreates the whole graph on drag'],
+              ].map(([step, signal, conclusion], i) => (
+                <tr key={step} className={i % 2 === 1 ? 'bg-[#f7f9ff]' : ''}>
+                  <td className="px-3 py-2 border-b border-[#e5e5e5] text-[#1a3a6b] font-medium">{step}</td>
+                  <td className="px-3 py-2 border-b border-[#e5e5e5] text-[#dc2626] font-mono">{signal}</td>
+                  <td className="px-3 py-2 border-b border-[#e5e5e5] text-[#555]">{conclusion}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="text-[11px] text-white/40 uppercase tracking-widest mt-2">Before — new object every render</div>
           <Code>
 nodes.map(node {'=>'} {'({'}{'\n'}
 {'  '}...node,{'\n'}
@@ -678,10 +749,10 @@ function S15_BeforeAfter({ slideNumber }: SlideProps) {
       <table className="w-full border-collapse text-[12px] mb-3">
         <thead>
           <tr>
-            <th className="bg-[#1a3a6b] text-white px-3 py-2 text-left font-medium">Metric</th>
-            <th className="bg-[#1a3a6b] text-white px-3 py-2 text-left font-medium">Problematic</th>
-            <th className="bg-[#1a3a6b] text-white px-3 py-2 text-left font-medium">Fixed</th>
-            <th className="bg-[#1a3a6b] text-white px-3 py-2 text-left font-medium">What fixed it</th>
+            <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Metric</th>
+            <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Problematic</th>
+            <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">Fixed</th>
+            <th className="bg-[#1a3a6b] text-black px-3 py-2 text-left font-medium">What fixed it</th>
           </tr>
         </thead>
         <tbody>
