@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import App from '../App'
 import { AstDemoApp } from '../ast-demo/AstDemoApp'
@@ -7,6 +8,7 @@ import { SLIDES } from './slides'
 import type { SlideDef, SlideProps } from './slides'
 import { TALK2_SLIDES } from './talk2Slides'
 import { TALK3_SLIDES } from './talk3Slides'
+import { TALK4_SLIDES } from './talk4Slides'
 import { SpeakerSlide } from './SpeakerSlide'
 import { useGamepadControls } from './useGamepadControls'
 
@@ -37,14 +39,29 @@ function readPersistedState(): PersistedPresentationState {
 
 // ─── Talk definitions ─────────────────────────────────────────────────────────
 
+type TalkIndex = 0 | 1 | 2 | 3
+
 type TalkDef = {
   title: string
   shortTitle: string
   day: string
   time: string
   stage: string
+  eventName?: string
+  eventCity?: string
   slides: SlideDef[]
   cuePointsSec: number[]
+}
+
+// ─── Event groups (talks that belong to the same conference) ─────────────────
+
+const EVENT_GROUPS: { talkIndices: TalkIndex[] }[] = [
+  { talkIndices: [0, 1, 2] }, // JSWorld 2026
+  { talkIndices: [3] },        // DevBcn 2026
+]
+
+function getEventIdx(talkIdx: TalkIndex): number {
+  return EVENT_GROUPS.findIndex(g => (g.talkIndices as number[]).includes(talkIdx))
 }
 
 const TALKS: TalkDef[] = [
@@ -84,6 +101,21 @@ const TALKS: TalkDef[] = [
       930, 990, 1110, 1200, 1290, 1380, 1470, 1560, 1650, 1740,
     ],
   },
+  {
+    title: 'Fixing Backend Delivery DX with a Frontend Mindset',
+    shortTitle: 'Backend DX',
+    day: '',
+    time: '',
+    stage: '',
+    eventName: 'DevBcn 2026',
+    eventCity: 'Barcelona',
+    slides: TALK4_SLIDES,
+    cuePointsSec: [
+      0, 60, 120, 210, 300, 390, 460, 530, 600,
+      660, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200,
+      1230, 1290, 1350, 1410, 1440, 1500, 1560, 1650, 1710, 1770, 1830, 1920,
+    ],
+  },
 ]
 
 function makeSpeakerSlideDef(talk: TalkDef): SlideDef {
@@ -93,6 +125,8 @@ function makeSpeakerSlideDef(talk: TalkDef): SlideDef {
       day={talk.day}
       time={talk.time}
       stage={talk.stage}
+      eventName={talk.eventName}
+      eventCity={talk.eventCity}
       slideNumber={slideNumber}
       total={total}
       onDemo={() => {}}
@@ -119,18 +153,19 @@ function getElapsedSeconds(timerStartedAt: number | null, pausedElapsedSec = 0):
 export function PresentationApp() {
   const persistedState = readPersistedState()
 
-  const [currentTalk, setCurrentTalk] = useState<0 | 1 | 2>(() => {
+  const [currentTalk, setCurrentTalk] = useState<TalkIndex>(() => {
     const { talk } = persistedState
-    if (talk === 0 || talk === 1 || talk === 2) return talk
+    if (talk === 0 || talk === 1 || talk === 2 || talk === 3) return talk
     return 0
   })
 
   const [currentSlides, setCurrentSlides] = useState<number[]>(() => {
     const { slides } = persistedState
-    if (Array.isArray(slides) && slides.length === 3) return slides
-    return [0, 0, 0]
+    if (Array.isArray(slides) && slides.length === 4) return slides
+    return [0, 0, 0, 0]
   })
 
+  const [talkDirection, setTalkDirection] = useState<1 | -1>(1)
   const [demoMode, setDemoMode] = useState<DemoMode>(null)
   const [timerStartedAt, setTimerStartedAt] = useState<number | null>(() => {
     const { timerStartedAt } = persistedState
@@ -270,20 +305,24 @@ export function PresentationApp() {
     setElapsed(0)
   }
 
-  const switchTalk = (idx: 0 | 1 | 2) => {
+  const switchTalk = useCallback((idx: TalkIndex) => {
     if (idx === currentTalk) return
+    setTalkDirection(idx > currentTalk ? 1 : -1)
     playAudio(daySwitchAudioRef.current)
     setCurrentTalk(idx)
     resetTimer()
-  }
+  }, [currentTalk, playAudio, resetTimer])
 
-  const switchTalkByOffset = (delta: number) => {
-    const next = Math.max(0, Math.min(TALKS.length - 1, currentTalk + delta)) as 0 | 1 | 2
-    if (next === currentTalk) return
+  const switchEventByOffset = useCallback((delta: number) => {
+    const eventIdx = getEventIdx(currentTalk)
+    const nextEventIdx = Math.max(0, Math.min(EVENT_GROUPS.length - 1, eventIdx + delta))
+    if (nextEventIdx === eventIdx) return
+    const nextTalk = EVENT_GROUPS[nextEventIdx].talkIndices[0]
+    setTalkDirection(delta > 0 ? 1 : -1)
     playAudio(daySwitchAudioRef.current)
-    setCurrentTalk(next)
+    setCurrentTalk(nextTalk)
     resetTimer()
-  }
+  }, [currentTalk, playAudio, resetTimer])
 
   const isPresentationMode = demoMode === null
 
@@ -296,8 +335,8 @@ export function PresentationApp() {
     onPrev: isPresentationMode ? () => go(-1) : undefined,
     onToggleTimer: isPresentationMode ? toggleTimer : undefined,
     onResetTimer: isPresentationMode ? resetTimer : undefined,
-    onNextDay: isPresentationMode ? () => switchTalkByOffset(1) : undefined,
-    onPrevDay: isPresentationMode ? () => switchTalkByOffset(-1) : undefined,
+    onNextTalk: isPresentationMode ? () => switchEventByOffset(1) : undefined,
+    onPrevTalk: isPresentationMode ? () => switchEventByOffset(-1) : undefined,
   })
 
   useEffect(() => {
@@ -308,10 +347,25 @@ export function PresentationApp() {
       }
       if (e.key === 'ArrowRight' || e.key === ' ') go(1)
       if (e.key === 'ArrowLeft') go(-1)
+      if (e.key === 'ArrowUp') switchEventByOffset(-1)
+      if (e.key === 'ArrowDown') switchEventByOffset(1)
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [demoMode, go])
+  }, [demoMode, go, switchEventByOffset])
+
+  useEffect(() => {
+    const lastScrollRef = { t: 0 }
+    const handler = (e: WheelEvent) => {
+      if (demoMode) return
+      const now = Date.now()
+      if (now - lastScrollRef.t < 700) return
+      lastScrollRef.t = now
+      switchEventByOffset(e.deltaY > 0 ? 1 : -1)
+    }
+    window.addEventListener('wheel', handler, { passive: true })
+    return () => window.removeEventListener('wheel', handler)
+  }, [demoMode, switchEventByOffset])
 
   useEffect(() => {
     if (!timerStartedAt) {
@@ -378,25 +432,28 @@ export function PresentationApp() {
     <div className="bg-[#1a1a2e] min-h-screen flex items-start justify-center">
       <div ref={presRef} style={{ width: 900 }}>
 
-        {/* Talk tab bar */}
+        {/* Talk tab bar — only shows talks in the current event */}
         <div className="flex bg-[#0d0d12]">
-          {TALKS.map((t, i) => (
-            <button
-              key={i}
-              onClick={() => switchTalk(i as 0 | 1 | 2)}
-              style={{ backgroundColor: currentTalk === i ? '#1337ac' : undefined }}
-              className={`m-2 flex-1 px-3 py-2 text-xs text-left transition-all border-0 cursor-pointer border-b-[3px] ${
-                currentTalk === i
-                  ? 'text-white border-[#00c4b4]'
-                  : 'bg-[#111] text-white/40 border-transparent hover:text-white/70 hover:bg-[#1a1a1a]'
-              }`}
-            >
-              <div className="font-semibold truncate">{t.shortTitle}</div>
-              <div className={`text-[10px] mt-0.5 ${currentTalk === i ? 'text-white/60' : 'text-white/30'}`}>
-                {t.day} · {t.time} · {t.stage}
-              </div>
-            </button>
-          ))}
+          {EVENT_GROUPS[getEventIdx(currentTalk)].talkIndices.map((talkIdx) => {
+            const t = TALKS[talkIdx]
+            return (
+              <button
+                key={t.shortTitle}
+                onClick={() => switchTalk(talkIdx)}
+                style={{ backgroundColor: currentTalk === talkIdx ? '#1337ac' : undefined }}
+                className={`m-2 flex-1 px-3 py-2 text-xs text-left transition-all border-0 cursor-pointer border-b-[3px] ${
+                  currentTalk === talkIdx
+                    ? 'text-white border-[#00c4b4]'
+                    : 'bg-[#111] text-white/40 border-transparent hover:text-white/70 hover:bg-[#1a1a1a]'
+                }`}
+              >
+                <div className="font-semibold truncate">{t.shortTitle}</div>
+                <div className={`text-[10px] mt-0.5 ${currentTalk === talkIdx ? 'text-white/60' : 'text-white/30'}`}>
+                  {[t.day, t.time, t.stage].filter(Boolean).join(' · ')}
+                </div>
+              </button>
+            )
+          })}
         </div>
 
         {/* Timer bar */}
@@ -489,11 +546,28 @@ export function PresentationApp() {
           className="relative overflow-hidden rounded-b-lg"
           style={{ aspectRatio: '16/9' }}
         >
-          <slide.Component
-            onDemo={setDemoMode}
-            slideNumber={current + 1}
-            total={total}
-          />
+          <AnimatePresence mode="sync" custom={talkDirection}>
+            <motion.div
+              key={currentTalk}
+              custom={talkDirection}
+              variants={{
+                enter: (d: number) => ({ y: d * 32, opacity: 0 }),
+                center: { y: 0, opacity: 1 },
+                exit: (d: number) => ({ y: -d * 32, opacity: 0 }),
+              }}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="absolute inset-0"
+            >
+              <slide.Component
+                onDemo={setDemoMode}
+                slideNumber={current + 1}
+                total={total}
+              />
+            </motion.div>
+          </AnimatePresence>
           {isCountdownRunning && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-md">
               <div
@@ -532,7 +606,7 @@ export function PresentationApp() {
             </span>
           ) : isGamepadConnected ? (
             <span className="text-[#7dd3fc]">
-              Gamepad controls active: RB next slide, LB previous slide, D-pad left/right switch day, A start/pause/resume timer, B reset.
+              Gamepad controls active: RB next slide, LB previous slide, D-pad up/down switch talk, A start/pause/resume timer, B reset.
             </span>
           ) : (
             <span className="text-white/25">

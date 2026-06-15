@@ -5,8 +5,8 @@ type GamepadControlsOptions = {
   onPrev?: () => void
   onToggleTimer?: () => void
   onResetTimer?: () => void
-  onNextDay?: () => void
-  onPrevDay?: () => void
+  onNextTalk?: () => void
+  onPrevTalk?: () => void
 }
 
 type GamepadControlsState = {
@@ -20,6 +20,8 @@ const BUTTON_B = 1
 const BUTTON_LB = 4
 const BUTTON_RB = 5
 const BUTTON_START = 9
+const BUTTON_DPAD_UP = 12
+const BUTTON_DPAD_DOWN = 13
 const BUTTON_DPAD_LEFT = 14
 const BUTTON_DPAD_RIGHT = 15
 
@@ -91,8 +93,10 @@ export function useGamepadControls(options: GamepadControlsOptions): GamepadCont
       triggerIfPressed(gamepad, BUTTON_LB, optionsRef.current.onPrev)
       triggerIfPressed(gamepad, BUTTON_A, optionsRef.current.onToggleTimer)
       triggerIfPressed(gamepad, BUTTON_B, optionsRef.current.onResetTimer)
-      triggerIfPressed(gamepad, BUTTON_DPAD_LEFT, optionsRef.current.onPrevDay)
-      triggerIfPressed(gamepad, BUTTON_DPAD_RIGHT, optionsRef.current.onNextDay)
+      triggerIfPressed(gamepad, BUTTON_DPAD_UP, optionsRef.current.onPrevTalk)
+      triggerIfPressed(gamepad, BUTTON_DPAD_DOWN, optionsRef.current.onNextTalk)
+      triggerIfPressed(gamepad, BUTTON_DPAD_LEFT, optionsRef.current.onPrevTalk)
+      triggerIfPressed(gamepad, BUTTON_DPAD_RIGHT, optionsRef.current.onNextTalk)
       triggerIfPressed(gamepad, BUTTON_START, optionsRef.current.onToggleTimer)
 
       frameId = window.requestAnimationFrame(tick)
